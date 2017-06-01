@@ -407,7 +407,67 @@ In many situations is is useful to be able to boot the system into the state
 \begin_layout Standard
 This allows inspection of the state of the system at the time the snapshot
  was created, as well as isolated testing of potentially destructive software
- updates, configuration changes, and other administrative actions.
+ updates, configuration changes, and other administrative actions:
+\end_layout
+
+\begin_layout Enumerate
+Booting into a snapshot to inspect prior system state
+\end_layout
+
+\begin_deeper
+\begin_layout Enumerate
+To reference an earlier configuration, or software update level while troublesho
+oting
+\end_layout
+
+\begin_layout Enumerate
+To retrieve data files, or information from past system state
+\begin_inset Foot
+status collapsed
+
+\begin_layout Plain Layout
+For example data stored within encrypted volumes in a nested storage configurati
+on, or information from a database that cannot be retrieved from the files
+ offline.
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_deeper
+\begin_layout Enumerate
+Boot into a snapshot to test updates and other changes
+\end_layout
+
+\begin_deeper
+\begin_layout Enumerate
+For distributions that reboot to apply updates
+\end_layout
+
+\begin_layout Enumerate
+To test updates before accepting (merging) into the main image
+\end_layout
+
+\begin_layout Enumerate
+Booting a system to safely test configuration changes, scripts, and other
+ potentially destructive modifications on a snapshot of live data.
+\end_layout
+
+\end_deeper
+\begin_layout Enumerate
+To recover from failed updates and other system changes
+\end_layout
+
+\begin_layout Enumerate
+To create a new virtual or physical machine image from an existing image
+ or template
+\end_layout
+
+\begin_layout Enumerate
+Repeatable software testing of boot-time components from a consistent, reproduci
+ble image
 \end_layout
 
 \begin_layout Standard
