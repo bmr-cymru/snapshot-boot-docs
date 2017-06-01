@@ -4067,7 +4067,10 @@ Development languages
 As each component of the current proposal is an entirely new software element
  there is considerable freedom in selecting the language used for the implementa
 tion.
- Where some components must execute in restricted environments (early userspace,
+\end_layout
+
+\begin_layout Standard
+Where some components must execute in restricted environments (early userspace,
  pre-
 \family typewriter
 basic.target
@@ -4124,13 +4127,16 @@ key "rustlang"
 
 have gained popularity in recent years for systems programming and infrastructur
 e.
- They are high-level, compiled, statically typed languages heavily influenced
- by 
+ They are high-level, compiled languages heavily influenced by 
 \noun on
 C
 \noun default
  and related languages, with the addition of features such as garbage collection
-, memory safety and built in concurrency primitives
+, memory safety, type inference (
+\noun on
+Rust
+\noun default
+) and built in concurrency primitives
 \begin_inset CommandInset citation
 LatexCommand cite
 key "godesc"
@@ -4146,10 +4152,10 @@ Rust
 \noun on
 Go
 \noun default
- popularity seems set to increase it is still a relatively young language,
- and questions remain over long-term maintenance and support.
- In addition there is limited exerptise in these new technologies both in
- the team, company, and the wider development community.
+ seems set to increase they are still relatively young languages, and questions
+ remain over long-term maintenance and support.
+ In addition there is limited exerptise in either language in the device-mapper
+ and LVM2 developer community.
 \end_layout
 
 \begin_layout Standard
@@ -4160,7 +4166,7 @@ C
 imposes additional burdens on development it is well-proven and the basis
  for much of the software in the distribution.
  Since the components that must be written in a compiled language are expected
- to be relatively small it seems to be the natural choice for these elements.
+ to be relatively small it seems to be the natural choice for these parts.
 \end_layout
 
 \begin_layout Subsection
