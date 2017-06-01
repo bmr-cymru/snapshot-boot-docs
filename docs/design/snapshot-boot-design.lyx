@@ -394,6 +394,26 @@ Although the options themselves are relatively straightforward for one-off
  or to manage those entries at the time of snapshot creation or removal.
 \end_layout
 
+\begin_layout Standard
+The syntax required to boot a system using different snapshot implementations
+ (
+\family typewriter
+BTRFS
+\family default
+, 
+\family typewriter
+LVM2
+\family default
+, 
+\family typewriter
+Stratis
+\family default
+) necessarily differs due to differences in the underlying snapshot mechanisms:
+ for example, all snapshots in LVM2 have a unique name used to identify
+ them (qualified by the volume group where required), while snapshots in
+ a BTRFS volume are identified by a unique numeric identifier
+\end_layout
+
 \begin_layout Subsubsection
 Booting snapshots of LVM2 volumes
 \end_layout
