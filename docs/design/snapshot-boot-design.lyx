@@ -3470,9 +3470,9 @@ zipl
 
 \begin_layout Standard
 A number of steps can be taken to solve the problems discussed in this document
- at this time.
- These may be implemented in an iterative manner, building on the results
- of each successive unit of work.
+ at this time; these may be implemented in an iterative manner, building
+ on the results of each successive unit of work (with work proceeding in
+ parallel on independent components where possible).
 \end_layout
 
 \begin_layout Enumerate
