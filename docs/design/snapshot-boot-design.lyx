@@ -275,8 +275,12 @@ LVM2
 \family typewriter
 device-mapper
 \family default
- snapshots manually, this type of configuration is not widely used in practice
- and is not further considered here.
+ snapshots manually using the 
+\family typewriter
+dmsetup
+\family default
+ program, this type of configuration is not widely used in practice and
+ is not further considered here.
 \end_layout
 
 \begin_layout Standard
