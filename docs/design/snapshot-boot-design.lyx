@@ -169,18 +169,18 @@ This document is written using \SpecialChar LyX
 \begin_inset Newline newline
 \end_inset
 
-Please contact the LVM team 
+Please contact the development team using the dm-devel 
 \begin_inset Flex URL
 status collapsed
 
 \begin_layout Plain Layout
 
-<lvm-team@redhat.com>
+<dm-devel@redhat.com>
 \end_layout
 
 \end_inset
 
- with any questions, corrections or suggestions.
+ mailing list with any questions, corrections or suggestions.
 \end_layout
 
 \begin_layout Part*
