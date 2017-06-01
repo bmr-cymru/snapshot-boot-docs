@@ -1,0 +1,4458 @@
+#LyX 2.2 created this file. For more info see http://www.lyx.org/
+\lyxformat 508
+\begin_document
+\begin_header
+\save_transient_properties true
+\origin unavailable
+\textclass article
+\begin_preamble
+
+\end_preamble
+\use_default_options true
+\maintain_unincluded_children false
+\language british
+\language_package default
+\inputencoding auto
+\fontencoding global
+\font_roman "beraserif" "default"
+\font_sans "lmss" "default"
+\font_typewriter "default" "default"
+\font_math "auto" "auto"
+\font_default_family sfdefault
+\use_non_tex_fonts false
+\font_sc false
+\font_osf false
+\font_sf_scale 100 100
+\font_tt_scale 100 100
+\graphics default
+\default_output_format default
+\output_sync 0
+\bibtex_command default
+\index_command default
+\paperfontsize default
+\spacing single
+\use_hyperref true
+\pdf_bookmarks true
+\pdf_bookmarksnumbered false
+\pdf_bookmarksopen false
+\pdf_bookmarksopenlevel 1
+\pdf_breaklinks false
+\pdf_pdfborder false
+\pdf_colorlinks false
+\pdf_backref false
+\pdf_pdfusetitle true
+\papersize default
+\use_geometry true
+\use_package amsmath 1
+\use_package amssymb 1
+\use_package cancel 1
+\use_package esint 1
+\use_package mathdots 1
+\use_package mathtools 1
+\use_package mhchem 1
+\use_package stackrel 1
+\use_package stmaryrd 1
+\use_package undertilde 1
+\cite_engine basic
+\cite_engine_type default
+\biblio_style plain
+\use_bibtopic false
+\use_indices false
+\paperorientation portrait
+\suppress_date false
+\justification true
+\use_refstyle 1
+\index Index
+\shortcut idx
+\color #008000
+\end_index
+\leftmargin 1.5in
+\topmargin 1in
+\rightmargin 1.5in
+\bottommargin 1in
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation indent
+\paragraph_indentation default
+\quotes_language english
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+\tracking_changes false
+\output_changes false
+\html_math_output 0
+\html_css_as_file 0
+\html_be_strict false
+\end_header
+
+\begin_body
+
+\begin_layout Title
+Boot-to-snapshot design v0.1
+\end_layout
+
+\begin_layout Author
+Bryn M.
+ Reeves 
+\begin_inset Flex URL
+status collapsed
+
+\begin_layout Plain Layout
+
+<bmr@redhat.com>
+\end_layout
+
+\end_inset
+
+,
+\begin_inset Newline newline
+\end_inset
+
+Marion Csontos 
+\begin_inset Flex URL
+status collapsed
+
+\begin_layout Plain Layout
+
+<mcsontos@redhat.com>
+\end_layout
+
+\end_inset
+
+,
+\begin_inset Newline newline
+\end_inset
+
+Zdenek Kabelac 
+\begin_inset Flex URL
+status collapsed
+
+\begin_layout Plain Layout
+
+<zkabelac@redhat.com>
+\end_layout
+
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Date
+Last modified: 31/05/17
+\end_layout
+
+\begin_layout Standard
+\begin_inset CommandInset toc
+LatexCommand tableofcontents
+
+\end_inset
+
+
+\begin_inset Newpage pagebreak
+\end_inset
+
+
+\end_layout
+
+\begin_layout Part*
+About this document
+\end_layout
+
+\begin_layout Standard
+This document is written using \SpecialChar LyX
+ 2.2.2.
+ 
+\begin_inset Newline newline
+\end_inset
+
+
+\begin_inset Newline newline
+\end_inset
+
+Please contact the LVM team 
+\begin_inset Flex URL
+status collapsed
+
+\begin_layout Plain Layout
+
+<lvm-team@redhat.com>
+\end_layout
+
+\end_inset
+
+ with any questions, corrections or suggestions.
+\end_layout
+
+\begin_layout Part*
+Executive Summary
+\end_layout
+
+\begin_layout Standard
+Existing boot loader management tools are not well adapted to the problem
+ of supporting multiple, bootable snapshots of the root file system, and
+ have no support for managing snapshots of auxiliary file system mounts.
+ We propose the creation of a new 
+\emph on
+Boot Manager
+\emph default
+ tool to address the problem of maintaining boot loader entries corresponding
+ to snapshots of the system state, and a high-level 
+\emph on
+Snapshot Manager
+\emph default
+ to both automate and abstract the low-level detail of snapshot creation
+ and boot entry management, and to provide additional value-added functionality
+ such as snapshot meta data and life cycle management, and high-level operations
+ on snapshot content.
+\end_layout
+
+\begin_layout Part
+Background
+\end_layout
+
+\begin_layout Section
+Problem Statement
+\end_layout
+
+\begin_layout Standard
+Linux systems today have the ability to take a snapshot of file system state,
+ including that of the root file system, using a number of different technologie
+s:
+\end_layout
+
+\begin_layout Itemize
+Classic device-mapper 
+\emph on
+copy-on-write
+\emph default
+ snapshots.
+\end_layout
+
+\begin_layout Itemize
+Device-mapper thin-provisioning snapshots (
+\emph on
+thin snapshots
+\emph default
+).
+\end_layout
+
+\begin_layout Itemize
+BTRFS 
+\emph on
+subvolume
+\emph default
+ snapshots.
+\end_layout
+
+\begin_layout Standard
+A snapshot preserves the state of the file system at the time it is created.
+ A 
+\emph on
+read-only
+\emph default
+ snapshot provides a persistent record of the file system state at the time
+ of creation while 
+\emph on
+read-write
+\emph default
+ snapshots allow the history of the file systems to diverge over time, as
+ different patterns of writes occur in the origin and snapshot volumes.
+\end_layout
+
+\begin_layout Standard
+Currently the most widely used mechanism for creating snapshots using the
+ Linux 
+\family typewriter
+device-mapper
+\family default
+ is the 
+\family typewriter
+LVM2
+\family default
+ suite of volume management tools.
+ Although it is possible to create both classical and thinly provisioned
+ 
+\family typewriter
+device-mapper
+\family default
+ snapshots manually, this type of configuration is not widely used in practice
+ and is not further considered here.
+\end_layout
+
+\begin_layout Standard
+An alternative implementation of 
+\family typewriter
+device-mapper
+\family default
+ snapshots and other volume and file system management techniques for Linux,
+ 
+\noun on
+Stratis
+\noun default
+, has been proposed and may in time provide another means to implement volume
+ snapshots
+\begin_inset CommandInset citation
+LatexCommand cite
+key "stratis"
+
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+Snapshots may be used to effect a number of useful administrative tasks,
+ for example:
+\end_layout
+
+\begin_layout Itemize
+Point-in-time snapshots for backup and recovery.
+\end_layout
+
+\begin_layout Itemize
+Before-and-after snapshots of system state for testing and roll back.
+\end_layout
+
+\begin_layout Itemize
+Preparation of standardised 
+\begin_inset Quotes eld
+\end_inset
+
+base images
+\begin_inset Quotes erd
+\end_inset
+
+ for further customisation.
+\end_layout
+
+\begin_layout Standard
+When used in this manner snapshots avoid the expense involved in creating,
+ or retrieving, a backup of the entire file system state or selected parts
+ of it.
+\end_layout
+
+\begin_layout Standard
+For example, the administrator may create one snapshot prior to applying
+ software updates, and a second once the updates have been successfully
+ applied.
+ If problems emerge during testing or later, the prior system state may
+ be immediately inspected via the snapshot, and rolled back to if necessary.
+ Alternately, a single snapshot may be taken before the update operation
+ and rolled back to in the event of failure.
+\end_layout
+
+\begin_layout Standard
+Additionally, it is possible to interrogate snapshots to perform operations
+ such as retrieving a file's content at an earlier moment in time, performing
+ a 
+\begin_inset Quotes eld
+\end_inset
+
+
+\family typewriter
+diff
+\family default
+
+\begin_inset Quotes erd
+\end_inset
+
+ operation between different versions of a file, or even to perform actions
+ within a snapshot image, such as running an arbitrary command and adding
+ or removing files or directories.
+\end_layout
+
+\begin_layout Subsection
+Booting snapshots
+\end_layout
+
+\begin_layout Standard
+In many situations is is useful to be able to boot the system into the state
+ represented by one or more snapshots of the root file system and other
+ system volumes.
+\end_layout
+
+\begin_layout Standard
+This allows inspection of the state of the system at the time the snapshot
+ was created, as well as isolated testing of potentially destructive software
+ updates, configuration changes, and other administrative actions.
+\end_layout
+
+\begin_layout Standard
+It has been technically possible for a Linux system to boot into a previously
+ created snapshot for a number of years, but currently it is not possible
+ for users of common distributions to boot into an arbitrary snapshot image
+ of the system without modifying system managed files, and providing specific
+ kernel command line parameters to select and enable the snapshot volumes.
+\end_layout
+
+\begin_layout Standard
+Although the options themselves are straightforward, they require knowledge
+ of the snapshot name or identifier in advance, and no tooling currently
+ exists to either detect suitable snapshots of the system, and create appropriat
+e boot entries for them, or to manage those entries at the time of snapshot
+ creation or removal.
+\end_layout
+
+\begin_layout Subsubsection
+Booting snapshots of LVM2 volumes
+\end_layout
+
+\begin_layout Standard
+To boot a system that uses the 
+\family typewriter
+dracut
+\begin_inset CommandInset citation
+LatexCommand cite
+key "dracut"
+
+\end_inset
+
+
+\family default
+ tool to generate 
+\family typewriter
+initramfs
+\family default
+ images using LVM2 snapshots, the user must specify the root device to be
+ used via the 
+\family typewriter
+root=
+\family default
+ kernel command line parameter, and the snapshot logical volume to be activated
+ via 
+\family typewriter
+the rd.lvm.lv=
+\family default
+.
+ 
+\family typewriter
+dracut 
+\family default
+parameter.
+\end_layout
+
+\begin_layout Standard
+For example
+\family typewriter
+:
+\end_layout
+
+\begin_layout Verbatim
+
+root=/dev/mapper/vg00-lvol0 rd.lvm.lv=vg00/lvol0
+\end_layout
+
+\begin_layout Standard
+A bug currently exists in 
+\family typewriter
+dracut
+\family default
+ that prevents this syntax from activating LVM2 thin snapshots: this is
+ because these snapshots have the 
+\emph on
+activation skip
+\begin_inset Foot
+status collapsed
+
+\begin_layout Plain Layout
+The ability to skip activation of certain logical volumes (marked with the
+ 
+\emph on
+activation skip
+\emph default
+ flag) was introduced in LVM2.02.99.
+\end_layout
+
+\end_inset
+
+
+\emph default
+ flag set by default.
+ A pull request has been submitted to make this behaviour consistent with
+ classic LVM2 snapshots when the 
+\family typewriter
+rd.lvm.lv
+\family default
+ syntax is used (since this requests activation of a specific, named logical
+ volume)
+\begin_inset CommandInset citation
+LatexCommand cite
+key "dracutpr"
+
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Subsubsection
+Booting snapshots of BTRFS volumes
+\end_layout
+
+\begin_layout Standard
+Similarly for BTRFS, the root device is specified as before, and the snapshot's
+ 
+\family typewriter
+subvolumeid
+\family default
+ is given using the 
+\family typewriter
+rootflags=
+\family default
+ command line parameter:
+\end_layout
+
+\begin_layout Verbatim
+
+root=/dev/sda2 rootflags=subvolid=262
+\end_layout
+
+\begin_layout Subsection
+Core Goals
+\end_layout
+
+\begin_layout Standard
+A number of goals and concrete proposals for the current work are suggested.
+ Core aims are labelled separately from other features that are of additional
+ benefit, but do not form a necessary part of the basic snapshot booting
+ proposal.
+\end_layout
+
+\begin_layout Standard
+It is expected that these can be delivered as a number of discrete milestones
+ over a time-scale of one to two 
+\noun on
+RHEL
+\noun default
+ update releases.
+ This is an aggressive and ambitious schedule and progress towards milestones
+ will need to be carefully tracked to ensure delivery of core functionality
+ on time.
+\end_layout
+
+\begin_layout Subsubsection
+Goal: enable use of snapshot boot capability for advanced users
+\end_layout
+
+\begin_layout Standard
+The capability to boot into a selected snapshot of the root file system
+ already exists but is poorly documented and not widely known.
+ In the shortest possible term this can be improved by taking simple steps
+ to raise awareness of this mechanism and to assist users in successfully
+ creating manual configurations.
+\end_layout
+
+\begin_layout Subsubsection
+Proposal: document kernel command line parameters for booting snapshots
+\end_layout
+
+\begin_layout Standard
+By explicitly documenting the ability to boot into a snapshot of the root
+ file system, in product documentation, portal content, and elsewhere, the
+ functionality can be made available to a wider audience with minimal effort.
+ This will also create additional interest in the type of higher-level managemen
+t tools we hope to introduce as part of this work.
+\end_layout
+
+\begin_layout Subsubsection
+Goal: Enable easy selection of bootable snapshots
+\end_layout
+
+\begin_layout Standard
+Although it is possible to boot a Linux system into various snapshot configurati
+ons, few administrators are aware of, or make use of this functionality
+ since it is poorly documented and relies on a detailed knowledge of kernel
+ command line parameters, system device, and VFS configuration.
+\end_layout
+
+\begin_layout Standard
+With appropriate tools these powerful features would be accessible to a
+ much wider audience of 
+\noun on
+Red Hat
+\noun default
+ users and customers, as well as to teams developing products using 
+\noun on
+RHEL
+\noun default
+ as a base operating system.
+\end_layout
+
+\begin_layout Subsubsection
+Proposal: Make snapshots accessible from the boot menu
+\end_layout
+
+\begin_layout Standard
+The bootloader menu provides a familiar mechanism for selecting among the
+ available bootable environments on the system.
+ By adding the ability to automatically create and manage boot entries for
+ snapshot volumes, without the need for very detailed knowledge of either
+ boot loader, kernel command line, or system configuration, the feature
+ is made accessible to the widest audience of system administrators and
+ users.
+\end_layout
+
+\begin_layout Standard
+Using well-known technology such as the 
+\family typewriter
+grub
+\family default
+ menu maximises the administrator's familiarity with the new feature and
+ enables the use of existing skills to further customise the configuration
+ (for example, interactive edits to the bootloader entry).
+\end_layout
+
+\begin_layout Standard
+By creating tooling to exploit existing features of the operating system
+ to enable easy generation of bootloader configuration for snapshots created
+ using any technology (
+\family typewriter
+LVM2, Stratis
+\family default
+ or 
+\family typewriter
+BTRFS
+\family default
+) the need to create additional, LVM2-specific, tooling is avoided and the
+ maintenance burden is spread over a greater number of components.
+\end_layout
+
+\begin_layout Subsubsection
+Goal: Automate the management of boot entries for snapshots
+\end_layout
+
+\begin_layout Standard
+Once tooling has been established to allow bootloader entries for snapshots
+ to be createfamiliard and managed, it is possible to further simplify the
+ administrator's task by automating the process of adding and removing the
+ required bootloader configuration when snapshots are created or removed.
+\end_layout
+
+\begin_layout Standard
+This may be done either by integrating the boot manager with the various
+ tools responsible for snapshot management (
+\family typewriter
+btrfs(8)
+\family default
+, 
+\family typewriter
+lvcreate(8)
+\family default
+, 
+\family typewriter
+lvremove(8)
+\family default
+ etc.), or by creating a new tool that will perform the snapshot operation
+ itself, using the appropriate tool for the type of volume being operated
+ upon, before calling into the boot manager to update bootloader configuration
+\end_layout
+
+\begin_layout Subsubsection
+Proposal: Develop an integrated snapshot management tool
+\end_layout
+
+\begin_layout Standard
+Since there are multiple snapshot mechanisms (
+\family typewriter
+LVM2
+\family default
+, 
+\family typewriter
+BTRFS
+\family default
+ and potentially 
+\family typewriter
+Stratis
+\family default
+), and since adding support for updating boot manager configuration would
+ require changes to the tools for each of these mechanisms, it is proposed
+ that a new, higher-level snapshot management tool be created to perform
+ the task of creating and removing snapshots of the required type, and updating
+ the boot configuration as appropriate.
+\end_layout
+
+\begin_layout Standard
+This also creates an integration point for further enhancements, for example
+ adding policies to control various aspects of snapshot maintenance.
+\end_layout
+
+\begin_layout Subsection
+Additional Goals
+\end_layout
+
+\begin_layout Standard
+Additional goals, beyond the core functionality required for snapshot boot
+ support, are presented in this section.
+ These represent significant additional value that may be added once basic
+ functionality is complete.
+\end_layout
+
+\begin_layout Subsubsection
+Goal: allow substitution of selected VFS mounts for snapshot versions
+\end_layout
+
+\begin_layout Standard
+In order to assemble a coherent view of the system corresponding to an earlier
+ point in time, it is necessary to be able to substitute other VFS mounts
+ with their snapshot equivalents during boot.
+\end_layout
+
+\begin_layout Standard
+Addressing this goal exceeds the capabilities of Snapper and brings the
+ solution closer to feature parity with 
+\noun on
+Oracle
+\noun default
+ 
+\family typewriter
+Solaris
+\family default
+/
+\family typewriter
+ZFS 
+\family default
+in terms of the ability to quickly recover an earlier system state, including
+ auxiliary file system content.
+\end_layout
+
+\begin_layout Subsubsection
+Proposal: introduce a mechanism for boot time file system substitution.
+\end_layout
+
+\begin_layout Standard
+A mechanism will be created to allow a list of file system mount points
+ to be given for substitution with specified snapshot versions, at the time
+ the system is booted.
+ The syntax must extend to 
+\family typewriter
+LVM2, BTRFS
+\family default
+ and 
+\family typewriter
+Stratis
+\family default
+ snapshot volumes, and should allow VFS mount options to be inherited from
+ the existing configuration for the mount point under substitution, or specified
+ at the time of substitution.
+\end_layout
+
+\begin_layout Subsubsection
+Goal: Simplify creation of point-in-time snapshots of multiple file systems
+\end_layout
+
+\begin_layout Standard
+Currently no mechanism exists to allow an administrator to simultaneously
+ snapshot multiple devices or file system mount points, and to combine these
+ snapshots together into a coherent view of prior system state.
+\end_layout
+
+\begin_layout Standard
+It should be possible for the administrator to specify mount points to be
+ included or excluded from the configuration (for example to allow sharing
+ of data between snapshot instances, or to allow logs to be written to a
+ common location).
+\end_layout
+
+\begin_layout Standard
+This is necessary in order to be able to boot the system into an actual
+ prior state, as recorded in the snapshots.
+ This is the case because as well as application state, modifications to
+ the root file system may necessitate changes to data hosted on other volumes
+ that together comprise the overall operating environment of the system
+ (for example: an update to a database package installed to the root file
+ system, that then requires changes to the format of files stored in other
+ volumes, or an update of a system to some new internal baseline image,
+ with corresponding changes to data deployed in other system volumes).
+\end_layout
+
+\begin_layout Subsubsection
+Proposal: Create multiple snapshots simultaneously as a coherent set
+\end_layout
+
+\begin_layout Standard
+The Snapshot Manager tool will allow the user to specify multiple volumes
+ for which snapshots will be created simultaneously, and will create a correspon
+ding boot entry that includes the necessary file system substitution if
+ the root file system is included.
+ 
+\end_layout
+
+\begin_layout Subsubsection
+Goal: Simplify management of large numbers of bootable snapshots
+\end_layout
+
+\begin_layout Standard
+When regular snapshots of the system are taken, or when snapshots are preserved
+ over a long period of time, large numbers of snapshot volumes may accumulate
+ on the system.
+ This is a problem for several reasons: large numbers of entries clutter
+ system menus and tool output, making selections more difficult to navigate
+ while increasing the risk of error, as well as lenghtening the time taken
+ for the user to make a correct selection,
+\end_layout
+
+\begin_layout Standard
+These effects are especially acute in restricted terminal environments used
+ for system recovery, such as 
+\family typewriter
+systemd
+\family default
+'s emergency mode or the shell spawned by 
+\family typewriter
+dracut
+\family default
+ when an early user space error occurs.
+\end_layout
+
+\begin_layout Standard
+Additionally, in the case of classic 
+\family typewriter
+device-mapper
+\family default
+ snapshots, I/O performance degrades when many snapshots of the same origin
+ exist due to the non-shared copy-on-write store design.
+\end_layout
+
+\begin_layout Standard
+By not addressing these issues in generic features, the cost is pushed onto
+ users of the snapshot facility, who will need to implement appropriate
+ policies themselves, either manually or via automation.
+\end_layout
+
+\begin_layout Subsubsection
+Proposal: Provide policy controlled tools for snapshot life cycle management
+\end_layout
+
+\begin_layout Standard
+Once a tool exists to create and remove system snapshots and their corresponding
+ boot configuration, it becomes a relatively simple step to apply policies
+ to automate some aspects of that management, for example creating snapshots
+ to a particular schedule, around certain events, or expiring snapshots
+ by age, count or some other applicable mechanism.
+\end_layout
+
+\begin_layout Standard
+By providing hooks that the administrator, or other applications can use
+ to modify policy actions the flexibility of these mechanisms can be increased.
+\end_layout
+
+\begin_layout Subsubsection
+Goal: Simplify file operations on snapshot volumes
+\end_layout
+
+\begin_layout Standard
+In addition to booting into snapshots to perform administrative tasks, it
+ is useful in some instances to be able to inspect these volumes from the
+ running system, and even to perform actions within them (running a command,
+ accessing file content).
+ Providing automated mechanisms to allow these operations avoids the need
+ to disrupt the system by rebooting for simple tasks, and simplifies the
+ execution of these tasks on the running system by automating snapshot activatio
+n and mount operations.
+\end_layout
+
+\begin_layout Subsubsection
+\begin_inset CommandInset label
+LatexCommand label
+name "subsec:Proposal:file-ops"
+
+\end_inset
+
+Proposal: Implement familiar file operations for snapshots
+\end_layout
+
+\begin_layout Standard
+A set of operations that can be applied to snapshot volumes is proposed.
+ These operations are based on familiar 
+\noun on
+UNIX
+\noun default
+ command idioms and provide a means to access and inspect snapshot content
+ from the system.
+\end_layout
+
+\begin_layout Description
+df report snapshot disk space usage.
+\end_layout
+
+\begin_layout Description
+du estimate snapshot file space usage.
+\end_layout
+
+\begin_layout Description
+cp Copy a file between the snapshot and the file system.
+\end_layout
+
+\begin_layout Description
+cat Concatenate snapshot file content and print to standard output.
+\end_layout
+
+\begin_layout Description
+diff compare file content between the snapshot and file system line-by-line.
+\end_layout
+
+\begin_layout Description
+exec Execute the specified command in the snapshot name space.
+\end_layout
+
+\begin_layout Section
+Linux boot process management
+\end_layout
+
+\begin_layout Standard
+A Linux operating system instance is loaded in multiple phases:
+\end_layout
+
+\begin_layout Description
+Firmware Platform-specific initialisation carried out by embedded software.
+\end_layout
+
+\begin_layout Description
+Bootloader Selection, loading, and initialisation of a kernel image and
+ auxiliary images.
+\end_layout
+
+\begin_layout Description
+Kernel Kernel and driver initialisation, 
+\family typewriter
+VFS
+\family default
+ initialisation, process initialisation.
+\end_layout
+
+\begin_layout Description
+Early
+\begin_inset space ~
+\end_inset
+
+Userspace Selection and mounting of the root file system.
+\end_layout
+
+\begin_layout Description
+Init Control is passed to 
+\family typewriter
+init
+\family default
+ daemon: auxiliary file systems mounted, services started.
+\end_layout
+
+\begin_layout Standard
+Aside from the first phase, which is implemented by hardware specific embedded
+ software, these phases are carried out by components provided by the operating
+ system (in environments which permit booting more than one operating system
+ the administrator may choose to create separate bootloader environments
+ for each, or to manage a system wide, shared instance: no single convention
+ for managing this situation has yet been adopted by the community).
+\end_layout
+
+\begin_layout Standard
+The earliest phases of the Linux boot process (from the end of firmware
+ initialisation to the point that control is handed to the kernel) have
+ long lacked standardisation of both implementation and configuration.
+\end_layout
+
+\begin_layout Standard
+Each distribution tends to carry its own tweaks, hacks and management scripts
+\begin_inset CommandInset citation
+LatexCommand cite
+key "new-kernel-pkg8"
+
+\end_inset
+
+
+\begin_inset CommandInset citation
+LatexCommand cite
+key "update-bootloader"
+
+\end_inset
+
+ to augment the bootloaders provided by upstream projects, to the point
+ that in some cases a distribution's bootloader may be considered an independent
+ fork of the upstream project.
+\end_layout
+
+\begin_layout Standard
+Since today there is very little cooperation between distributions on shared
+ management of a single, system-wide 
+\begin_inset Quotes eld
+\end_inset
+
+
+\family typewriter
+/boot
+\family default
+
+\begin_inset Quotes erd
+\end_inset
+
+, administrators who choose to configure the system in this way are left
+ with the task of ensuring that the various installations do not conflict,
+ and that there is a single, coherent bootloader installation visible to
+ firmware at boot time.
+\end_layout
+
+\begin_layout Standard
+Bootloaders in use on 
+\noun on
+Red Hat
+\noun default
+ distributions include:
+\end_layout
+
+\begin_layout Description
+elilo Bootloader for 
+\family typewriter
+\noun on
+IA-64
+\family default
+\noun default
+ based Intel systems (legacy)
+\end_layout
+
+\begin_layout Description
+lilo Bootloader for 
+\family typewriter
+\noun on
+x86
+\emph on
+\noun default
+/
+\emph default
+\noun on
+x86_64
+\emph on
+\noun default
+ 
+\family default
+\emph default
+based PC systems (legacy)
+\end_layout
+
+\begin_layout Description
+grub1 Bootloader for 
+\family typewriter
+\noun on
+x86
+\family default
+\noun default
+/
+\family typewriter
+\noun on
+x86_64
+\family default
+\noun default
+ based PC systems (legacy)
+\end_layout
+
+\begin_layout Description
+grub2 Cross-platform bootloader (
+\family typewriter
+\noun on
+x86
+\noun default
+/
+\noun on
+x86_64
+\noun default
+, 
+\noun on
+IA-64
+\noun default
+, 
+\noun on
+ARM
+\noun default
+/
+\noun on
+AARCH64
+\noun default
+, 
+\noun on
+PowerPC
+\noun default
+)
+\end_layout
+
+\begin_layout Description
+yaboot Bootloader for 
+\family typewriter
+\noun on
+PowerPC
+\family default
+\noun default
+ systems (legacy).
+\end_layout
+
+\begin_layout Description
+zipl Bootloader for 
+\family typewriter
+\noun on
+IBM z Systems
+\end_layout
+
+\begin_layout Standard
+Current RHEL and Fedora releases (
+\noun on
+Red Hat Enterprise Linux 7
+\noun default
+, and 
+\noun on
+Fedora 16
+\noun default
+ onwards) use the 
+\family typewriter
+grub2
+\family default
+ boot loader on all supported architectures except for 
+\family typewriter
+\noun on
+IBM System z
+\family default
+\noun default
+.
+\end_layout
+
+\begin_layout Subsection
+Early user space interaction
+\end_layout
+
+\begin_layout Standard
+The Plymouth
+\begin_inset CommandInset citation
+LatexCommand cite
+key "plymouth"
+
+\end_inset
+
+ graphical boot system provides a mechanism to present a graphical or text
+ mode progress indicator to the user during system boot.
+ Plymouth has been used as the graphical boot agent in Red Hat distributions
+ since 
+\noun on
+Fedora 10
+\noun default
+ and 
+\noun on
+Red Hat Enterprise Linux 6
+\noun default
+.
+\end_layout
+
+\begin_layout Standard
+Plymouth consists of a daemon, 
+\family typewriter
+plymouthd
+\family default
+, which manages the display and handles requests from clients, and a command
+ line and liibrary interface used to notify the daemon of state changes,
+ and to request user interaction via the console.
+\end_layout
+
+\begin_layout Standard
+In addition to the progress indication and logging services provided by
+ Plymouth, limited interaction with the user is permitted in order to obtain
+ answers to simple question/response prompts, or to provide specific information
+ (typically authentication or decryption passwords).
+\end_layout
+
+\begin_layout Standard
+The interaction verbs supported by current versions of Plymouth are
+\begin_inset CommandInset citation
+LatexCommand cite
+key "plymouth8"
+
+\end_inset
+
+:
+\end_layout
+
+\begin_layout Description
+ask-for-password Ask user for password
+\end_layout
+
+\begin_layout Description
+ask-question Ask user a question
+\end_layout
+
+\begin_layout Description
+display-message Display a message
+\end_layout
+
+\begin_layout Description
+hide-message Hide a message
+\end_layout
+
+\begin_layout Description
+watch-keystroke Become sensitive to a keystroke
+\end_layout
+
+\begin_layout Description
+ignore-keystroke Remove sensitivity to a keystroke
+\end_layout
+
+\begin_layout Standard
+These verbs accept the following options:
+\end_layout
+
+\begin_layout Verbatim
+
+Options for ask-for-password command:
+\end_layout
+
+\begin_layout Verbatim
+
+  --command=<string> Command to send password to via standard input
+\end_layout
+
+\begin_layout Verbatim
+
+  --prompt=<string> Message to display when asking for password
+\end_layout
+
+\begin_layout Verbatim
+
+  --number-of-tries=<integer> Number of times to ask before giving up (requires
+ --command)
+\end_layout
+
+\begin_layout Verbatim
+
+  --dont-pause-progress Don't pause boot progress bar while asking
+\end_layout
+
+\begin_layout Verbatim
+
+\end_layout
+
+\begin_layout Verbatim
+
+Options for ask-question command:
+\end_layout
+
+\begin_layout Verbatim
+
+  --command=<string> Command to send the answer to via standard input
+\end_layout
+
+\begin_layout Verbatim
+
+  --prompt=<string> Message to display when asking the question
+\end_layout
+
+\begin_layout Verbatim
+
+  --dont-pause-progress Don't pause boot progress bar while asking
+\end_layout
+
+\begin_layout Verbatim
+
+\end_layout
+
+\begin_layout Verbatim
+
+Options for display-message command:
+\end_layout
+
+\begin_layout Verbatim
+
+  --text=<string> The message text
+\end_layout
+
+\begin_layout Verbatim
+
+\end_layout
+
+\begin_layout Verbatim
+
+Options for hide-message command:
+\end_layout
+
+\begin_layout Verbatim
+
+  --text=<string> The message text
+\end_layout
+
+\begin_layout Verbatim
+
+\end_layout
+
+\begin_layout Verbatim
+
+Options for watch-keystroke command:
+\end_layout
+
+\begin_layout Verbatim
+
+  --command=<string> Command to send keystroke to via standard input
+\end_layout
+
+\begin_layout Verbatim
+
+  --keys=<string> Keys to become sensitive to
+\end_layout
+
+\begin_layout Verbatim
+
+\end_layout
+
+\begin_layout Verbatim
+
+Options for ignore-keystroke command:
+\end_layout
+
+\begin_layout Verbatim
+
+  --keys=<string> Keys to remove sensitivity to 
+\end_layout
+
+\begin_layout Standard
+While it is technically possible to envisage using these primitives to implement
+ a snapshot selection mechanism during early user space, the available primimtiv
+es are limited and would make construction of menus having numerous entries
+ awkward and clumsy, and enforces a question-response type of interaction
+ (without the ability to, for example, scroll through the available entries).
+\end_layout
+
+\begin_layout Standard
+Discussions with the original authors of Plymouth indicate that there is
+ no interest in extending the interaction capabilities of the tool at this
+ time: avoiding complexities such as internationalisation and font configuration
+ during this phase of boot form part of the design goals of Plymouth and
+ there is active hostility towards ehnancing this mechanism to support more
+ complex interaction.
+\end_layout
+
+\begin_layout Subsection
+Boot loader entries
+\end_layout
+
+\begin_layout Standard
+Although each bootloader has its own configuration mechanism and syntax,
+ generally a 
+\emph on
+boot loader entry
+\emph default
+ may be considered a tuple of (
+\emph on
+kernel, initramfs, arguments
+\emph default
+, [device tree])
+\begin_inset Foot
+status collapsed
+
+\begin_layout Plain Layout
+Some environments, for example, the Xen paravirtualised hypervisor, which
+ implements the multiboot standard
+\begin_inset CommandInset citation
+LatexCommand cite
+key "multiboot"
+
+\end_inset
+
+, require additional boot tuple values to specify auxiliary images to be
+ loaded by the bootloader.
+\end_layout
+
+\end_inset
+
+, or (
+\emph on
+kernel version, arguments
+\emph default
+), with the precise image file names being formed from a template and the
+ 
+\emph on
+kernel version
+\emph default
+ value.
+ For architectures that support the use of a 
+\emph on
+device tree 
+\emph default
+(notably 
+\family typewriter
+ARM
+\family default
+/
+\family typewriter
+AARCH64
+\family default
+\emph on
+), 
+\emph default
+there is an additional tuple member to specify this parameter.
+\end_layout
+
+\begin_layout Standard
+Boot loaders typically present the available boot entries in menu form,
+ allowing the user to select from the available entries or to accept the
+ default.
+ This is a well known mechanism for controlling the system boot process
+ although the details and precise capabilities vary among the existing bootloade
+r implementations.
+\end_layout
+
+\begin_layout Subsection
+Bootloader abstractions
+\end_layout
+
+\begin_layout Standard
+Several attempts have been made to create higher level abstractions over
+ the multiple bootloader configuration formats, with varying degrees of
+ success.
+ Typically each distribution, or family of distributions, has a favoured
+ tool which is used by the operating system installer, update tools, and
+ package manager installation scripts to add, remove, or modify bootloader
+ configuration.
+\end_layout
+
+\begin_layout Standard
+These tools are generally designed to accommodate automated installation
+ and update use-cases, for example: adding a boot configuration for a new
+ kernel package, or removing all boot configurations corresponding to a
+ specified kernel package.
+\end_layout
+
+\begin_layout Standard
+Two examples are considered in detail here: the 
+\noun on
+Red Hat
+\noun default
+ 
+\family typewriter
+grubby
+\family default
+ package, and 
+\noun on
+SuSE
+\noun default
+'s 
+\family typewriter
+perl-Bootloader
+\family default
+ modules.
+\end_layout
+
+\begin_layout Subsubsection
+Grubby
+\end_layout
+
+\begin_layout Standard
+The 
+\family typewriter
+grubby
+\begin_inset CommandInset citation
+LatexCommand cite
+key "grubby"
+
+\end_inset
+
+
+\family default
+ project has been used in 
+\noun on
+Red Hat
+\noun default
+ distributions since the early 2000s.
+ It consists of a 
+\family typewriter
+C
+\family default
+ program, 
+\family typewriter
+grubby
+\begin_inset CommandInset citation
+LatexCommand cite
+key "grubby8"
+
+\end_inset
+
+,
+\family default
+ with a command line interface, and a shell script, 
+\family typewriter
+new-kernel-pkg
+\family default
+
+\begin_inset CommandInset citation
+LatexCommand cite
+key "new-kernel-pkg8"
+
+\end_inset
+
+, intended to be called from packaging scripts.
+\end_layout
+
+\begin_layout Standard
+The 
+\family typewriter
+grubby 
+\family default
+program understands configuration formats for a number of bootloaders (
+\family typewriter
+grub
+\family default
+1, 
+\family typewriter
+grub2
+\family default
+, 
+\family typewriter
+lilo
+\family default
+, 
+\family typewriter
+elilo
+\family default
+, 
+\family typewriter
+yaboot
+\family default
+, and 
+\family typewriter
+zipl
+\family default
+), and is able to add, remove, modify, and display information for bootloader
+ entries including the currently selected default entry.
+\end_layout
+
+\begin_layout Standard
+Given a kernel, initramfs image, command line arguments, and title, the
+ command will create a new entry, optionally substituting missing elements
+ from a template generated from existing entries.
+\end_layout
+
+\begin_layout Standard
+The tool is also able to adjust the default entry, and to probe for the
+ presence of some supported bootloaders.
+\end_layout
+
+\begin_layout Standard
+The bootloader abstractions implemented by 
+\family typewriter
+grubby
+\family default
+ attempt to hide details of the individual formats (for instance, different
+ keywords used to specify the kernel or initial ramfs image), as well as
+ distribution-specific details such as the precise path of the bootloader
+ configuration file in the 
+\begin_inset Quotes eld
+\end_inset
+
+
+\family typewriter
+/boot
+\family default
+
+\begin_inset Quotes erd
+\end_inset
+
+ file system.
+\end_layout
+
+\begin_layout Standard
+The project 
+\family typewriter
+TODO
+\begin_inset CommandInset citation
+LatexCommand cite
+key "grubby-todo"
+
+\end_inset
+
+
+\family default
+ file records an intent to create a library interface but no progress is
+ apparent at the time of writing.
+\end_layout
+
+\begin_layout Standard
+The 
+\family typewriter
+new-kernel-pkg
+\family default
+ script provides an additional layer over the 
+\family typewriter
+grubby
+\family default
+ command which adds the ability to create or remove an 
+\family typewriter
+initramfs
+\family default
+ image and to run 
+\family typewriter
+RPM
+\family default
+ post-transaction hooks stored in 
+\begin_inset Quotes eld
+\end_inset
+
+
+\family typewriter
+/etc/kernel/postinst.d
+\family default
+
+\begin_inset Quotes erd
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Subsubsection
+perl-Bootloader
+\end_layout
+
+\begin_layout Standard
+The 
+\noun on
+SuSE
+\noun default
+ 
+\family typewriter
+perl-Bootloader
+\family default
+ packages and 
+\family typewriter
+update-bootloader
+\family default
+ script provide very similar functionality to the 
+\noun on
+Red Hat
+\noun default
+ 
+\family typewriter
+grubby
+\family default
+ tool: a set of 
+\family typewriter
+perl
+\family default
+ modules are provided that can read and write the configuration formats
+ of various bootloaders (
+\family typewriter
+lilo, elilo, grub1, grub2, grub2efi
+\family default
+), as well as a script to perform the task of adding, removing and updating
+ entries for a particular kernel.
+\end_layout
+
+\begin_layout Standard
+Unlike grubby, the 
+\family typewriter
+perl-Bootloader
+\family default
+ modules treat 
+\family typewriter
+grub2
+\family default
+ used in EFI configurations as a separate configuration family but this
+ is a relatively minor implementation detail.
+\end_layout
+
+\begin_layout Standard
+Like 
+\family typewriter
+new-kernel-pkg
+\family default
+ and 
+\family typewriter
+grubby
+\family default
+, 
+\family typewriter
+update-bootloader
+\family default
+ supports templating of new entries based on values used for previous configurat
+ions.
+ Unlike the Red Hat package update script, the 
+\family typewriter
+update-bootloader
+\family default
+ tool does not support generating a new initial ramfs image and requires
+ the path to a previously generated image to be provided.
+\end_layout
+
+\begin_layout Subsection
+BootLoader Specification
+\end_layout
+
+\begin_layout Standard
+The 
+\emph on
+BootLoader Specification
+\begin_inset CommandInset citation
+LatexCommand cite
+key "bootloaderspec"
+
+\end_inset
+
+(BLS)
+\emph default
+ is an attempt by the 
+\noun on
+freedesktop.org
+\begin_inset CommandInset citation
+LatexCommand cite
+key "freedesktop"
+
+\end_inset
+
+
+\noun default
+ project to define a common standard for a shared, system-wide 
+\begin_inset Quotes eld
+\end_inset
+
+
+\family typewriter
+/boot
+\family default
+
+\begin_inset Quotes erd
+\end_inset
+
+ file system.
+\end_layout
+
+\begin_layout Standard
+The specification discusses the motivation for better standardisation of
+ boot entry configuration, and the limitations of both existing open solutions
+ and the EFI standards.
+\end_layout
+
+\begin_layout Standard
+The specification documents requirements for the 
+\begin_inset Quotes eld
+\end_inset
+
+
+\family typewriter
+/boot
+\family default
+
+\begin_inset Quotes erd
+\end_inset
+
+ file system and its directory structure, as well as a format for drop-in
+ configuration 
+\emph on
+snippets
+\emph default
+ that each correspond to a single bootable instance of an operating system.
+\end_layout
+
+\begin_layout Standard
+Compliant implementations create and delete files in the drop-in directory
+ in order to add and remove bootable menu entries from the configuration.
+ This avoids the need to edit entries embedded in a larger configuration
+ file and the complexities and uncertainties that this introduces (a considerabl
+e part of the complexity of both 
+\family typewriter
+grubby
+\family default
+ and 
+\family typewriter
+perl-Bootloader
+\family default
+ is the need to accomodate both manual and machine modifications to the
+ configuration as well as ambiguous or variable aspects of each boot loader's
+ native configuration syntax).
+\end_layout
+
+\begin_layout Standard
+The current version of the BLS has the following requirements:
+\end_layout
+
+\begin_layout Itemize
+Boot file system located at 
+\family typewriter
+\series bold
+$BOOT
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+
+\family typewriter
+\series bold
+$BOOT
+\family default
+\series default
+ place holder resolved at installation time to a location meeting the requiremen
+ts of the specification.
+ Specific requirements depend on the type of firmware (
+\family typewriter
+BIOS
+\family default
+ vs.
+ 
+\family typewriter
+EFI
+\family default
+) and disk label (
+\family typewriter
+MBR
+\family default
+ vs.
+ 
+\family typewriter
+GPT
+\family default
+) in use, and whether or not a usable 
+\family typewriter
+EFI System Partition 
+\family default
+(
+\family typewriter
+ESP
+\family default
+) already exists.
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+
+\family typewriter
+\series bold
+$BOOT
+\series default
+/loader
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+Root directory for all BLS configuration.
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+
+\family typewriter
+\series bold
+$BOOT
+\series default
+/loader/entries
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+Drop-in directory for BLS configuration snippets.
+\end_layout
+
+\end_deeper
+\begin_layout Standard
+The BLS further specifies that the 
+\family typewriter
+\series bold
+$BOOT
+\family default
+\series default
+ file system must be a 
+\family typewriter
+VFAT
+\family default
+ 16 or 32 file system.
+ This requirement appears to be an attempt to harmonise with aspects of
+ the (
+\family typewriter
+U
+\family default
+)
+\family typewriter
+EFI
+\family default
+ specification, particularly the requirements of the 
+\family typewriter
+ESP
+\family default
+.
+ At this time there are no known implementations of BLS that enforce this
+ requirement.
+\end_layout
+
+\begin_layout Standard
+Currently, BLS also requires that the partition containing the 
+\family typewriter
+\series bold
+$BOOT
+\family default
+\series default
+ file system have partition type code 
+\family typewriter
+0xEA
+\family default
+ on systems using the MBR partition scheme.
+ This is problematic since this value is not reserved for this use and is
+ currently in use by at least one other partitioning tool
+\begin_inset CommandInset citation
+LatexCommand cite
+key "rufus"
+
+\end_inset
+
+ for a conflicting purpose.
+ Again: no known implementation of BLS enforces this requirement.
+\end_layout
+
+\begin_layout Standard
+An implementation of a subset of the published BootLoader Specification
+ is present in the 
+\family typewriter
+grub2
+\family default
+ packages shipped in recent
+\noun on
+ Red
+\begin_inset space ~
+\end_inset
+
+Hat
+\begin_inset space ~
+\end_inset
+
+Enterprise
+\begin_inset space ~
+\end_inset
+
+Linux
+\noun default
+ and 
+\noun on
+Fedora
+\noun default
+ releases.
+ The implementation does not extend to the full set of restrictions on the
+ 
+\family typewriter
+\series bold
+$BOOT
+\family default
+\series default
+ volume as described in the standard (which would need support from the
+ installer and other components), but does provide a usable mechanism that
+ may be harnessed to create additional boot entries on these systems.
+\end_layout
+
+\begin_layout Standard
+Although the specification was written some years ago, and is implemented
+ in several 
+\noun on
+Red
+\begin_inset space ~
+\end_inset
+
+Hat
+\noun default
+ distributions, development appears to have stalled.
+ Private conversations with one of the contributors to the specification
+ indicate that although there was general agreement over the direction the
+ standard should take that insufficient motivation existed at the time to
+ further its development and adoption.
+\end_layout
+
+\begin_layout Standard
+As the requirements for the shared 
+\family typewriter
+\series bold
+$BOOT
+\family default
+\series default
+ model that the standard aims to enable are highly convergent with the needs
+ of flexible snapshot boot support, generating BLS compliant boot configuration
+ is the primary aim of the proposed Boot Manager tool.
+\end_layout
+
+\begin_layout Standard
+The 
+\family typewriter
+imgbased
+\family default
+ project
+\begin_inset CommandInset citation
+LatexCommand cite
+key "imgbased"
+
+\end_inset
+
+ currently generates BLS boot entries for managed snapshot volumes.
+\end_layout
+
+\begin_layout Subsubsection
+BLS
+\family typewriter
+ 
+\family default
+configuration snippets
+\end_layout
+
+\begin_layout Standard
+A configuration snippet is a 
+\noun on
+UNIX
+\noun default
+-formatted plain text file in 
+\family typewriter
+UTF-8
+\family default
+ encoding containing key/value pairs that define the values necessary to
+ boot the entry.
+ The following keys are currently defined:
+\end_layout
+
+\begin_layout Description
+title A human-readable title string for this entry (
+\begin_inset Quotes eld
+\end_inset
+
+
+\family typewriter
+Fedora 24 (Workstation Edition)
+\family default
+
+\begin_inset Quotes erd
+\end_inset
+
+).
+\end_layout
+
+\begin_layout Description
+version A human-readable version string for this entry (
+\begin_inset Quotes eld
+\end_inset
+
+
+\family typewriter
+4.10.8-100.fc24.x86_64
+\family default
+
+\begin_inset Quotes erd
+\end_inset
+
+).
+\end_layout
+
+\begin_layout Description
+machine-id contains the machine ID of the installation (
+\begin_inset Quotes eld
+\end_inset
+
+
+\family typewriter
+611f38f
+\family default
+...
+\begin_inset Quotes erd
+\end_inset
+
+).
+\end_layout
+
+\begin_layout Description
+linux the bootable kernel image to be loaded (
+\begin_inset Quotes eld
+\end_inset
+
+
+\family typewriter
+vmlinuz-4.10.8-100.fc24.x86_64
+\family default
+
+\begin_inset Quotes erd
+\end_inset
+
+).
+\end_layout
+
+\begin_layout Description
+initrd the initial ram file system image to be loaded (
+\begin_inset Quotes eld
+\end_inset
+
+
+\family typewriter
+initramfs-4.10.8-100.fc24.x86_64.img
+\family default
+
+\begin_inset Quotes erd
+\end_inset
+
+).
+\end_layout
+
+\begin_layout Description
+options the kernel command line arguments to be passed (
+\begin_inset Quotes eld
+\end_inset
+
+
+\family typewriter
+root=/dev/mapper/vg00-lvol0 rd.lvm.lv=vg00/lvol0
+\family default
+
+\begin_inset Quotes erd
+\end_inset
+
+).
+\end_layout
+
+\begin_layout Description
+efi an arbitrary 
+\family typewriter
+EFI
+\family default
+ program to be loaded (a path relative to 
+\family typewriter
+\series bold
+$BOOT
+\family default
+\series default
+) (
+\begin_inset Quotes eld
+\end_inset
+
+
+\family typewriter
+/System/Library/CoreServices/boot.efi
+\family default
+
+\begin_inset Quotes erd
+\end_inset
+
+)
+\end_layout
+
+\begin_layout Description
+devicetree a binary device tree archive to be loaded on platforms that use
+ 
+\family typewriter
+DTB 
+\family default
+files (
+\begin_inset Quotes eld
+\end_inset
+
+
+\family typewriter
+tegra20-paz00.dtb
+\family default
+
+\begin_inset Quotes erd
+\end_inset
+
+).
+\end_layout
+
+\begin_layout Standard
+Each configuration snippet must contain at least one 
+\family typewriter
+linux
+\family default
+ key or one 
+\family typewriter
+efi
+\family default
+ key, and must be stored in a separate file in 
+\begin_inset Quotes erd
+\end_inset
+
+
+\family typewriter
+\series bold
+$BOOT
+\series default
+/loader/entries
+\family default
+
+\begin_inset Quotes erd
+\end_inset
+
+, named according to the scheme 
+\begin_inset Quotes eld
+\end_inset
+
+
+\family typewriter
+<machine-id>-<uname -r>.conf
+\family default
+".
+\end_layout
+
+\begin_layout Standard
+For example:
+\end_layout
+
+\begin_layout Verbatim
+
+6a9857a393724b7a981ebb5b8495b9ea-3.8.0-2.fc19.x86_64.conf
+\end_layout
+
+\begin_layout Verbatim
+
+064d6dfabdea4552b3483779f63b656e-4.8.6-300.fc25.x86_64.conf
+\end_layout
+
+\begin_layout Verbatim
+
+064d6dfabdea4552b3483779f63b656e-4.10.11-200.fc25.x86_64.conf
+\end_layout
+
+\begin_layout Standard
+A BLS snippet for 
+\family typewriter
+a Fedora 25
+\family default
+ installation using kernel 
+\family typewriter
+4.10.11-200.fc25.x86_64
+\family default
+ may contain:
+\end_layout
+
+\begin_layout Verbatim
+
+title Fedora 25 (Workstation Edition)
+\end_layout
+
+\begin_layout Verbatim
+
+version 4.10.11-200.fc25.x86_64
+\end_layout
+
+\begin_layout Verbatim
+
+machine-id 064d6dfabdea4552b3483779f63b656e
+\end_layout
+
+\begin_layout Verbatim
+
+options ro root=/dev/mapper/vg_f25-root rd.lvm.lv=vg_f25/root LANG=en_GB.UTF-8
+\end_layout
+
+\begin_layout Verbatim
+
+linux /064d6dfabdea4552b3483779f63b656e/4.10.11-200.fc25.x86_64/vmlinuz
+\end_layout
+
+\begin_layout Verbatim
+
+initrd /064d6dfabdea4552b3483779f63b656e/4.10.11-200.fc25.x86_64/initramfs
+\end_layout
+
+\begin_layout Subsubsection
+Proposed BLS enhancements (i)
+\end_layout
+
+\begin_layout Standard
+Matthew Garrett has proposed a number of enhancements intended to address
+ shortcomings in the BLS
+\begin_inset CommandInset citation
+LatexCommand cite
+key "bootloaderspec-mjg59"
+
+\end_inset
+
+.
+ These include the following changes:
+\end_layout
+
+\begin_layout Itemize
+Introduction of a formal name space in 
+\family typewriter
+\series bold
+$BOOT
+\family default
+\series default
+ (
+\begin_inset Quotes eld
+\end_inset
+
+
+\family typewriter
+\series bold
+$BOOT/
+\series default
+org/freedesktop/.../
+\family default
+
+\begin_inset Quotes erd
+\end_inset
+
+)
+\end_layout
+
+\begin_layout Itemize
+Support for chain loading entries via 
+\family typewriter
+chainload
+\family default
+ key.
+\end_layout
+
+\begin_layout Itemize
+Support for the Multiboot
+\begin_inset CommandInset citation
+LatexCommand cite
+key "multiboot"
+
+\end_inset
+
+ standard via 
+\family typewriter
+multiboot
+\family default
+ and 
+\family typewriter
+module
+\family default
+ keys.
+\end_layout
+
+\begin_layout Itemize
+Changes required MBR partition ID to 
+\family typewriter
+0xEF 
+\family default
+(
+\family typewriter
+EFI FAT-12/16/32
+\family default
+).
+\end_layout
+
+\begin_layout Itemize
+No requirement that the partition be 
+\family typewriter
+VFAT
+\family default
+.
+\end_layout
+
+\begin_layout Itemize
+Support for kernel and ramfs images on other partitions.
+\end_layout
+
+\begin_layout Itemize
+Remove the requirement that kernels be valid 
+\family typewriter
+UEFI 
+\family default
+executables on 
+\family typewriter
+UEFI
+\family default
+ systems.
+\end_layout
+
+\begin_layout Standard
+These proposals have not yet been incorporated into the BLS.
+ With the exception of the name space change (which although superficially
+ reasonable fails to fully address the problem it seeks to solve) these
+ are all improvements to the specification in terms of its suitability for
+ use in booting snapshot images.
+\end_layout
+
+\begin_layout Subsubsection
+Proposed BLS enhancements (ii)
+\end_layout
+
+\begin_layout Standard
+We propose two minor extensions to the BootLoader Specification that will
+ enhance the facility for the use of a snapshot boot implementation:
+\end_layout
+
+\begin_layout Enumerate
+Addition of a simple, free text tagging mechanism to support grouping, filtering
+ and sorting of entries.
+\end_layout
+
+\begin_layout Enumerate
+Amendment of the suggested configuration file naming recommendation to include
+ a free text discriminator field to allow snapshot entries to be given a
+ unique name.
+\end_layout
+
+\begin_layout Standard
+These changes have not been formally proposed at this time.
+ It is not clear whether the best route to having these changes included
+ is to amend the published BootLoader Specification, or to first attempt
+ to implement these features in the 
+\noun on
+Fedora
+\noun default
+ 
+\family typewriter
+grub2
+\family default
+ package.
+\end_layout
+
+\begin_layout Section
+Existing solutions
+\end_layout
+
+\begin_layout Standard
+Other operating systems and storage stacks (notably 
+\noun on
+Solaris
+\noun default
+/
+\family typewriter
+ZFS
+\family default
+, 
+\family typewriter
+Linux
+\family default
+/
+\family typewriter
+BTRFS
+\family default
+, and Linux distributions shipping the 
+\family typewriter
+ZFS
+\family default
+ file system) give the administrator the ability to boot a machine into
+ a selected snapshot of the root file system (and in some cases to substitute
+ other file system mounts with snapshot versions).
+\end_layout
+
+\begin_layout Standard
+This section focuses on the two implementations of most obvious competitive
+ relevance to 
+\noun on
+Red Hat
+\noun default
+: 
+\noun on
+Oracle Solaris
+\noun default
+/
+\family typewriter
+ZFS
+\family default
+, and 
+\noun on
+SuSE
+\noun default
+'s 
+\noun on
+Snapper
+\noun default
+ using the 
+\family typewriter
+BTRFS
+\family default
+ driver, as well as the proposed 
+\noun on
+Stratis Storage
+\noun default
+ project.
+\end_layout
+
+\begin_layout Subsection
+
+\noun on
+Snapper
+\end_layout
+
+\begin_layout Standard
+The
+\family typewriter
+
+\begin_inset space ~
+\end_inset
+
+
+\family default
+\noun on
+Snapper
+\noun default
+
+\begin_inset CommandInset citation
+LatexCommand cite
+key "snapper"
+
+\end_inset
+
+
+\begin_inset space ~
+\end_inset
+
+tool from 
+\noun on
+SuSE
+\noun default
+ includes both a command-line interface and a graphical application for
+ creating, viewing and managing snapshots.
+\end_layout
+
+\begin_layout Standard
+The tool also includes a mechanism to boot into a selected snapshot of a
+ BTRFS file system.
+ This feature relies on a BTRFS-specific superblock feature: the
+\family typewriter
+ 
+\family default
+\emph on
+default subvolumeid
+\emph default
+ field.
+ By overwriting this value the tool controls the BTRFS subvolume that will
+ be visible by default for any subsequent mount, including at system boot
+ time.
+\end_layout
+
+\begin_layout Standard
+This method avoids the need to modify the 
+\family typewriter
+fstab
+\family default
+, kernel command line parameters, or the 
+\family typewriter
+initramfs
+\family default
+, but has the disadvantage that recovery is made awkward in the case that
+ the current default is for any reason unbootable.
+ This behaviour is also considered objectionable by some users
+\begin_inset CommandInset citation
+LatexCommand cite
+key "snapperissue"
+
+\end_inset
+
+
+\begin_inset CommandInset citation
+LatexCommand cite
+key "snapperlayout"
+
+\end_inset
+
+ since it assumes control of a file system feature normally available for
+ the administrator's use.
+\end_layout
+
+\begin_layout Standard
+There are also concerns with the fact that Snapper currently stores its
+ snapshot metadata in a subdirectory within the volume that is being snapshotted.
+ This causes problems during recovery in some cases - a common workaround
+ is to relocate the directory elsewhere and replace the original with a
+ symbolic link
+\begin_inset CommandInset citation
+LatexCommand cite
+key "snapperlayout"
+
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Itemize
+
+\series bold
+\emph on
++
+\series default
+\emph default
+ Simple graphical user interface
+\end_layout
+
+\begin_layout Itemize
+
+\series bold
++
+\series default
+ Ability to 'diff' and recover specific files (BTRFS only)
+\end_layout
+
+\begin_layout Itemize
+
+\series bold
++
+\series default
+ Built-in snapshot expiration and clean-up (multiple policies)
+\end_layout
+
+\begin_layout Itemize
+
+\series bold
+-
+\series default
+ Advanced features tied to btrfs
+\end_layout
+
+\begin_layout Itemize
+
+\series bold
+-
+\series default
+ Requires administrator to give default subvolume control to Snapper
+\end_layout
+
+\begin_layout Itemize
+
+\series bold
+-
+\series default
+ Limited ability to create varied menu options and to control boot process
+ at boot time 
+\end_layout
+
+\begin_layout Itemize
+
+\series bold
+-
+\series default
+ Lacks ability to mount snapshots of non-root file systems at boot time.
+\end_layout
+
+\begin_layout Subsection
+
+\noun on
+Solaris
+\noun default
+ ZFS and 
+\family typewriter
+beadm
+\end_layout
+
+\begin_layout Standard
+
+\noun on
+Solaris
+\noun default
+ gained the ability to take snapshots of the root file system with the introduct
+ion of 
+\family typewriter
+ZFS
+\family default
+ in 
+\noun on
+Solaris
+\noun default
+ 10.
+ Since that time new management tools have been introduced to simplify the
+ maintenance and use of multiple bootable configurations on a single system.
+\end_layout
+
+\begin_layout Standard
+
+\noun on
+Solaris
+\noun default
+ introduces the notion of a 
+\begin_inset Quotes eld
+\end_inset
+
+
+\emph on
+boot environment
+\emph default
+
+\begin_inset Quotes erd
+\end_inset
+
+: a bootable instance of the OS that encapsulates the file systems (or snapshots
+) to be made available as well as the kernel and ram disk images to be used.
+\end_layout
+
+\begin_layout Standard
+An initial boot environment is created at installation time and further
+ environments can be created by the administrator with the 
+\family typewriter
+\emph on
+
+\begin_inset Quotes eld
+\end_inset
+
+
+\emph default
+beadm
+\family default
+
+\begin_inset Quotes erd
+\end_inset
+
+
+\begin_inset CommandInset citation
+LatexCommand cite
+key "beadm"
+
+\end_inset
+
+ command.
+ The command also provides the ability to list, modify and destroy environments
+ and to change the active (default) boot environment.
+\end_layout
+
+\begin_layout Standard
+The boot environment mechanism is strongly coupled to 
+\family typewriter
+ZFS
+\family default
+ and uses 
+\family typewriter
+ZFS
+\family default
+ pools, file system volumes, and snapshots to provide the file system mount
+ points required by a boot environment.
+\end_layout
+
+\begin_layout Standard
+An instance of a particular mountpoint (the origin volume, or a clone) is
+ referred to as a 
+\emph on
+dataset
+\emph default
+: each boot environment comprises exactly one 
+\emph on
+root dataset
+\emph default
+, and one or more 
+\emph on
+additional datasets
+\emph default
+ (auxiliary volumes to be mounted below the root mountpoint).
+ Datasets are associated with a given boot environment using the 
+\family typewriter
+beadm
+\family default
+ tool.
+ This feature allows a coherent set of snapshots to be combined into a single
+ bootable environment.
+\end_layout
+
+\begin_layout Standard
+The 
+\family typewriter
+beadm
+\family default
+ command is also responsible for managing and updating bootloader menu entries
+ for the managed boot environments, and for calling "bootadm"
+\begin_inset CommandInset citation
+LatexCommand cite
+key "bootadm"
+
+\end_inset
+
+ to update a boot archive (equivalent to the use of an 
+\family typewriter
+initramfs
+\family default
+ image for Linux systems).
+ On x86 systems 
+\noun on
+Solaris
+\noun default
+ uses a modified build of the 
+\family typewriter
+Grub1
+\family default
+ bootloader.
+\end_layout
+
+\begin_layout Standard
+Menu entries are generated automatically using the assigned "
+\family typewriter
+name@description
+\family default
+" labels accepted by "
+\family typewriter
+beadm create
+\family default
+
+\begin_inset Quotes erd
+\end_inset
+
+; labels are a free-text field which may include time and date strings,
+ descriptions etc.
+ to uniquely and meaningfully identify a given instance.
+\end_layout
+
+\begin_layout Standard
+
+\noun on
+Solaris
+\noun default
+ distinguishes between a 
+\emph on
+
+\begin_inset Quotes eld
+\end_inset
+
+snapshot
+\emph default
+
+\begin_inset Quotes erd
+\end_inset
+
+ of a boot environment, and a "
+\emph on
+clone
+\emph default
+": a 
+\emph on
+snapshot
+\emph default
+ is a read-only point-in-time image of a volume that is not bootable.
+ To create a 
+\emph on
+clone
+\emph default
+, that supports writes, and that can be used to boot the system, a previously
+ created snapshot is used to create a new boot environment
+\begin_inset CommandInset citation
+LatexCommand cite
+key "createsnap"
+
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+ZFS licensing precludes its inclusion in most distributions
+\begin_inset CommandInset citation
+LatexCommand cite
+key "zfscompat"
+
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Itemize
+
+\series bold
+\emph on
++
+\series default
+\emph default
+ Closely integrated with file system and overall system administration suite.
+\end_layout
+
+\begin_layout Itemize
+
+\series bold
+\emph on
++
+\series default
+\emph default
+ Capability to associate auxiliary data volumes with boot configuration.
+\end_layout
+
+\begin_layout Itemize
+
+\series bold
+\emph on
++
+\series default
+\emph default
+ Simple interface to create, destroy, list, and modify boot environments.
+\end_layout
+
+\begin_layout Itemize
+
+\series bold
+\emph on
+-
+\series default
+\emph default
+ Reliant upon 
+\noun on
+Solaris
+\noun default
+' 
+\family typewriter
+bootadm
+\family default
+ and 
+\family typewriter
+Grub1
+\family default
+ integration.
+\end_layout
+
+\begin_layout Itemize
+
+\series bold
+\emph on
+-
+\series default
+\emph default
+ Directly tied to 
+\family typewriter
+ZFS
+\family default
+ concepts and features.
+\end_layout
+
+\begin_layout Subsection
+
+\noun on
+Stratis Storage
+\end_layout
+
+\begin_layout Standard
+The Stratis Storage project aims to provide ZFS/Btrfs-style volume management
+ and file system features by integrating layers of existing technology:
+ Linux's 
+\family typewriter
+device-mapper
+\family default
+ subsystem, and the 
+\family typewriter
+XFS
+\family default
+ filesystem.
+ The project is relatively new but is under very active development and
+ may represent a future snapshot management technology alongside the existing
+ LVM2 and BTRFS stacks.
+\end_layout
+
+\begin_layout Standard
+The Stratis Storage design document proposes the addition of boot capabilities
+ in future versions
+\begin_inset CommandInset citation
+LatexCommand cite
+key "stratisdesign"
+
+\end_inset
+
+ but this work is planned for later releases (Section 12.6 on page 24 proposes
+ boot support for 
+\family typewriter
+Stratis
+\family default
+ 4.0).
+\end_layout
+
+\begin_layout Standard
+The Boot Manager may be extended to support 
+\family typewriter
+Stratis
+\family default
+ file systems when it becomes possible to use these volumes as the system
+ root file system.
+ 
+\end_layout
+
+\begin_layout Section
+Requirements
+\end_layout
+
+\begin_layout Subsection
+Boot Manager requirements
+\end_layout
+
+\begin_layout Subsubsection
+Ability to create BLS compliant boot loader entries
+\end_layout
+
+\begin_layout Standard
+The tool must be able to accept a set of boot tuple values on the command
+ line or via the library interface, and to create a corresponding BLS compliant
+ boot loader entry (
+\begin_inset Quotes eld
+\end_inset
+
+BLS entry
+\begin_inset Quotes erd
+\end_inset
+
+) capable of booting the system to that configuration.
+\end_layout
+
+\begin_layout Standard
+On platforms that require the use of a 
+\emph on
+device-tree
+\emph default
+ the tool must accept and propagate this key in addition to the basic boot
+ tuple values.
+\end_layout
+
+\begin_layout Subsubsection
+Ability to remove BLS boot loader entries
+\end_layout
+
+\begin_layout Standard
+The tool must be able to remove a currently configured BLS entry when given
+ appropriate selection criteria via the command line or library interface.
+\end_layout
+
+\begin_layout Standard
+Possible criteria include the entry 
+\emph on
+Title
+\emph default
+, 
+\emph on
+root= 
+\emph default
+value, or the unique per-entry identifier generated at the time an entry
+ is created.
+\end_layout
+
+\begin_layout Standard
+Where the given criteria correspond to more than one entry the tool will
+ remove all matching entries (for example, to remove all entries associated
+ with a specific kernel, or snapshot volume).
+ Deletion of multiple entries simultaneously may require confirmation via
+ a prompt or command line parameter.
+\end_layout
+
+\begin_layout Subsubsection
+Ability to list the available BLS boot loader entries and their properties
+\end_layout
+
+\begin_layout Standard
+It must be possible to display all available BLS entries on the system,
+ and to list relevant properties for them.
+ It is desirable for the listing to also include a filtering mechanism,
+ allowing entries to be selected using similar criteria to those used for
+ deletion and other operations.
+\end_layout
+
+\begin_layout Subsubsection
+Ability to display and modify the selected default boot entry
+\end_layout
+
+\begin_layout Standard
+In order to provide comprehensive management of the snapshot boot facility
+ the tool should be able to both report the current default boot entry,
+ and to modify the default stored by the bootloader (for bootloaders that
+ support persistent configuration).
+\end_layout
+
+\begin_layout Subsection
+Fle system substitution requirements
+\end_layout
+
+\begin_layout Subsubsection
+Accept file system substitutions on the kernel command line
+\end_layout
+
+\begin_layout Standard
+The file system substitution mechanism must accept a specification on the
+ kernel command line.
+\end_layout
+
+\begin_layout Standard
+This maximises the flexibility of the feature, and allows experienced users
+ to create or alter this configuration on-the-fly using the boot loader's
+ native editing facilities.
+\end_layout
+
+\begin_layout Subsubsection
+Perform substitutions before general system initialisation
+\end_layout
+
+\begin_layout Standard
+All file system substitutions must be fixed early on in the system boot
+ process, in particular, before any services or other long-running processes
+ that might otherwise use the substituted mount points have been started.
+\end_layout
+
+\begin_layout Subsubsection
+Support clean shut-down of substituted mount points
+\end_layout
+
+\begin_layout Standard
+In addition to creating the required configuration during system boot, the
+ file system substitution component must correctly reverse this configuration
+ during shut-down, unmounting file systems and releasing the corresponding
+ block devices at the appropriate points in the system shut-down sequence.
+\end_layout
+
+\begin_layout Subsection
+Snapshot Manager requirements
+\end_layout
+
+\begin_layout Subsubsection
+Allow creation and removal of snapshots using 
+\family typewriter
+LVM2, BTRFS
+\family default
+ or 
+\family typewriter
+Stratis
+\family default
+.
+\end_layout
+
+\begin_layout Standard
+The tool must allow the user to specify an existing device, logical volume
+ name, or file system mount point to be used to create a new snapshot.
+ The user should be able to specify a distinguishing label and other properties
+ for the snapshot, and to override existing defaults and inherited settings
+ where applicable.
+\end_layout
+
+\begin_layout Standard
+The tool must allow an already existing snapshot to be removed by providing
+ a unique reference to the snapshot (the snapshot name, or device name where
+ applicable, or some other unique identifier either created by the underlying
+ snapshot mechanism or generated by the Snapshot Manager).
+\end_layout
+
+\begin_layout Subsubsection
+Automatically create boot configuration for snapshots of the root file system
+\end_layout
+
+\begin_layout Standard
+The Snapshot Manager must be able to automatically create an appropriate
+ boot entry for new snapshots of the root file system; required values that
+ are not specified by the user should be obtained from either system templates
+ or existing configuration as appropriate.
+\end_layout
+
+\begin_layout Standard
+When a snapshot is removed using the Snapshot Manager tool, the manager
+ must remove any corresponding boot entries that were previously created.
+\end_layout
+
+\begin_layout Subsubsection
+Support expiry of snapshots by user specified policy
+\end_layout
+
+\begin_layout Standard
+The Snapshot Manager should allow the configuration of a policy controlling
+ snapshot expiry, either on a system wide basis, or a per-snapshot basis.
+\end_layout
+
+\begin_layout Standard
+Possible expiry policies include:
+\end_layout
+
+\begin_layout Itemize
+Snapshot count
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+Snapshots are expired when the number of snapshots exceeds a user-defined
+ threshold.
+ Snapshots are removed in least-recently-created order until the limit is
+ reached.
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+Snapshot age
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+Snapshots are expired when they reach a threshold age specified by the user.
+ Snapshots are removed in least-recently-created order until the limit is
+ reached.
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+Preservation tags
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+Tags are applied to snapshots to indicate that they are to be preserved.
+ The presence of a preservation flag exempts a snapshot from any other expiry
+ policy.
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+Snapshot space usage
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+Snapshots are expired when a threshold of space consumption in the snapshot
+ pool or host file system is exceeded.
+ Snapshot are removed in least-recently-created order until the limit is
+ reached.
+\end_layout
+
+\end_deeper
+\begin_layout Subsubsection
+Simultaneous creation of snapshots of multiple volumes
+\end_layout
+
+\begin_layout Standard
+It should be possible for a user to specify multiple volumes (one of which
+ may be the root file system) for which snapshots will be created simultaneously.
+\end_layout
+
+\begin_layout Standard
+When creating a boot configuration for a multi-volume snapshot, the tool
+ must be able to automatically create an appropriate file system substitution
+ configuration, and to add it to the boot configuration for the snapshot.
+\end_layout
+
+\begin_layout Subsubsection
+Snapshot file operations
+\end_layout
+
+\begin_layout Standard
+It is desirable to be able to perform additional high level operations on
+ snapshot volumes as proposed in 
+\begin_inset CommandInset ref
+LatexCommand vref
+reference "subsec:Proposal:file-ops"
+
+\end_inset
+
+.
+ This functionality requires that the Snapshot Manager be either able to
+ mount snapshot volumes as needed, or otherwise be able to inspect content
+ within the image contained in the snapshot (for example using the 
+\family typewriter
+libguestfs
+\begin_inset CommandInset citation
+LatexCommand cite
+key "libguestfs"
+
+\end_inset
+
+
+\family default
+ library).
+ In the case that it is necessary to preserve superblock time stamps while
+ performing mounts of snapshot volumes, the Snapshot Manager may choose
+ to create new, temporary read-only or read-write snapshots in order to
+ satisfy this requirement.
+\end_layout
+
+\begin_layout Part
+Solution overview
+\end_layout
+
+\begin_layout Section
+Introduction
+\end_layout
+
+\begin_layout Standard
+Initial efforts will focus on the 
+\family typewriter
+x86_64
+\family default
+ platform and current 
+\noun on
+Red Hat Enterprise Linux 7
+\noun default
+ and 
+\noun on
+Fedora
+\noun default
+ releases, since these include support for BLS.
+ It is expected that additional architectures and distributions can be addressed
+ with relatively little effort at a later time
+\begin_inset Foot
+status collapsed
+
+\begin_layout Plain Layout
+In particular, the 
+\family typewriter
+grub2
+\family default
+ bootloader is not currently used for 
+\noun on
+IBM z Systems
+\noun default
+ running 
+\noun on
+Red Hat
+\noun default
+ operating systems: it may be necessary to render Boot Manager generated
+ BLS snippets into the native 
+\family typewriter
+zipl
+\family default
+ configuration format.
+ 
+\end_layout
+
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+A number of steps can be taken to solve the problems discussed in this document
+ at this time.
+ These may be implemented in an iterative manner, building on the results
+ of each successive unit of work.
+\end_layout
+
+\begin_layout Enumerate
+Document use of 
+\family typewriter
+root=
+\family default
+ and 
+\family typewriter
+rd.lvm.lv=
+\family default
+ to boot from snapshot volumes
+\end_layout
+
+\begin_deeper
+\begin_layout Enumerate
+Address dracut support for thin-provisioned snapshots
+\begin_inset CommandInset citation
+LatexCommand cite
+key "dracutpr"
+
+\end_inset
+
+.
+\end_layout
+
+\end_deeper
+\begin_layout Enumerate
+Provide tooling to create and manage instances of bootable snapshots, and
+ to integrate these with the existing bootloader menu system or boot-time
+ display manager.
+\end_layout
+
+\begin_layout Enumerate
+Enable additional auxiliary file system snapshots to be associated with
+ a bootable environment, to be automatically mounted in place of the origin
+ file systems at boot time.
+\end_layout
+
+\begin_layout Enumerate
+Provide a higher level snapshot management tool that handles the low-level
+ aspects of snapshot creation and removal, as well as the creation and removal
+ of corresponding bootloader entries.
+\end_layout
+
+\begin_layout Enumerate
+Provide features to enable the management of snapshot life cycles, expiring
+ and removing snapshots over time according to administrator controlled
+ policy.
+\end_layout
+
+\begin_layout Enumerate
+Allow snapshots of multiple volumes to be taken simultaneously, permitting
+ a coherent snapshot of system state to be created.
+\end_layout
+
+\begin_layout Enumerate
+Allow familiar operations on files and file systems contained within snapshots
+ to be carried out from the running system.
+\end_layout
+
+\begin_layout Section
+Boot Manager
+\end_layout
+
+\begin_layout Standard
+The Boot Manager will be responsible for creating and deleting BLS snippets
+ corresponding to bootable snapshot instances.
+ It is the first new software deliverable for the proposed project, and
+ forms the basis of much of the functionality to be delivered in the near
+ term.
+\end_layout
+
+\begin_layout Standard
+The tool is envisaged as a command line interface and library bindings to
+ allow an administrator, or another software component to inspect and manage
+ the set of BLS boot loader entries present on the system.
+\end_layout
+
+\begin_layout Section
+File System Substitution
+\end_layout
+
+\begin_layout Standard
+The component responsible for file system substitution must accept a value
+ on the kernel command line and perform the requested mount point substitutions
+ during the boot process.
+ There are two points at which the opportunity to make these changes exists:
+ (i) during early user space processing (initial ramfs), after the selection
+ and mount of the root device, but before the pivot of the system root,
+ and (ii) before 
+\family typewriter
+systemd
+\family default
+ reaches the 
+\family typewriter
+local-fs
+\family default
+ target.
+\end_layout
+
+\begin_layout Standard
+To substitute file system mounts during boot it is necessary to either modify
+ the visible copy of 
+\begin_inset Quotes eld
+\end_inset
+
+
+\family typewriter
+/etc/fstab
+\family default
+
+\begin_inset Quotes erd
+\end_inset
+
+, or to modify the system mount state after local file systems have been
+ mounted.
+ Modifying the 
+\family typewriter
+fstab
+\family default
+ has the advantage that tools such as 
+\family typewriter
+mount(8)
+\family default
+ which operate on this file will behave as expected.
+\end_layout
+
+\begin_layout Section
+Snapshot Manager
+\end_layout
+
+\begin_layout Standard
+The snapshot manager provides a higher level mechanism for creating, removing,
+ and managing snapshots and their associated boot configuration and meta
+ data.
+ As well as providing a simplified interface to administrators, and combining
+ multiple steps into a single operation, the manager provides an abstraction
+ over the various low-level snapshot mechanisms and creates an integration
+ point which may be used to introduce further features and services.
+\end_layout
+
+\begin_layout Part
+Implementation
+\end_layout
+
+\begin_layout Section
+Software Components
+\end_layout
+
+\begin_layout Standard
+The proposed implementation involves creating three new software components:
+\end_layout
+
+\begin_layout Enumerate
+Boot Manager
+\begin_inset CommandInset label
+LatexCommand label
+name "enu:Boot-Manager"
+
+\end_inset
+
+
+\end_layout
+
+\begin_deeper
+\begin_layout Enumerate
+A command line tool to manage snapshot boot entries
+\end_layout
+
+\begin_layout Enumerate
+Fixes to dracut required to support thin snapshots
+\end_layout
+
+\end_deeper
+\begin_layout Enumerate
+File system subsitution mechanism
+\begin_inset CommandInset label
+LatexCommand label
+name "enu:File-system-subsitution"
+
+\end_inset
+
+
+\end_layout
+
+\begin_deeper
+\begin_layout Enumerate
+A software component to perform file system substitutions passed on the
+ kernel command line.
+\end_layout
+
+\begin_layout Enumerate
+Integration with the Boot Manager to allow passing of a substitution specificati
+ons to boot entries.
+\end_layout
+
+\end_deeper
+\begin_layout Enumerate
+Snapshot Manager
+\begin_inset CommandInset label
+LatexCommand label
+name "enu:Snapshot-Manager"
+
+\end_inset
+
+
+\end_layout
+
+\begin_deeper
+\begin_layout Enumerate
+A command line tool to create, remove, and manipulate snapshot volumes and
+ associated boot configuration
+\end_layout
+
+\begin_layout Enumerate
+Support for creation of snapshots of multiple volumes simultaneously.
+\end_layout
+
+\begin_layout Enumerate
+Policies to manage expiry and deletion of snapshots, based on:
+\end_layout
+
+\begin_deeper
+\begin_layout Enumerate
+Snapshot count
+\end_layout
+
+\begin_layout Enumerate
+Snapshot age
+\end_layout
+
+\begin_layout Enumerate
+Preservation tags
+\end_layout
+
+\begin_layout Enumerate
+Space consumption
+\end_layout
+
+\end_deeper
+\begin_layout Enumerate
+Support for common file operations on snapshot data.
+\end_layout
+
+\end_deeper
+\begin_layout Standard
+Initial development will focus on 
+\begin_inset CommandInset ref
+LatexCommand eqref
+reference "enu:Boot-Manager"
+
+\end_inset
+
+and 
+\begin_inset CommandInset ref
+LatexCommand eqref
+reference "enu:File-system-subsitution"
+
+\end_inset
+
+.
+ 
+\end_layout
+
+\begin_layout Section
+Development languages
+\end_layout
+
+\begin_layout Standard
+As each component of the current proposal is an entirely new software element
+ there is considerable freedom in selecting the language used for the implementa
+tion.
+ Where some components must execute in restricted environments (early userspace,
+ pre-
+\family typewriter
+basic.target
+\family default
+) there may be restrictions on both specific languages and the types of
+ languages (e.g.
+ compiled vs.
+ interpreted) that can easily be supported.
+\end_layout
+
+\begin_layout Standard
+For interpreted languages, 
+\noun on
+Python
+\noun default
+ has the advantage of widespread adoption at 
+\noun on
+Red Hat
+\noun default
+ and a large and active internal development community.
+ Alternatives include 
+\noun on
+Perl
+\noun default
+ and 
+\noun on
+Ruby
+\noun default
+ but these have a smaller internal developer presence and are less widely
+ adopted in the distribution.
+\end_layout
+
+\begin_layout Standard
+The 
+\noun on
+Go
+\noun default
+ and 
+\noun on
+Rust
+\noun default
+ languages
+\begin_inset CommandInset citation
+LatexCommand cite
+key "golang"
+
+\end_inset
+
+ 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "rustlang"
+
+\end_inset
+
+have gained popularity in recent years for systems programming and infrastructur
+e.
+ They are high-level, compiled, statically typed languages heavily influenced
+ by 
+\noun on
+C
+\noun default
+ and related languages, with the addition of features such as garbage collection
+, memory safety and built in concurrency primitives
+\begin_inset CommandInset citation
+LatexCommand cite
+key "godesc"
+
+\end_inset
+
+.
+ While the popularity of 
+\noun on
+Rust
+\noun default
+ and 
+\noun on
+Go
+\noun default
+ popularity seems set to increase it is still a relatively young language,
+ and questions remain over long-term maintenance and support.
+ In addition there is limited exerptise in these new technologies both in
+ the team, company, and the wider development community.
+\end_layout
+
+\begin_layout Standard
+While 
+\noun on
+C 
+\noun default
+imposes additional burdens on development it is well-proven and the basis
+ for much of the software in the distribution.
+ Since the components that must be written in a compiled language are expected
+ to be relatively small it seems to be the natural choice for these elements.
+\end_layout
+
+\begin_layout Subsection
+Boot Manager
+\end_layout
+
+\begin_layout Standard
+The Boot Manager does not need to execute during early user space, or before
+ the 
+\family typewriter
+init
+\family default
+ daemon has fully initialised the system.
+ The tools are expected to be used from one or more operating system installatio
+ns present on the system, or a similar rescue environment or live image,
+ and will have full access to the normal libraries and runtime environments
+ those operating systems provide.
+\end_layout
+
+\begin_layout Standard
+Some initial prototyping work has been carried out in 
+\noun on
+Python
+\noun default
+ and this is a commonly used language for similar development tasks at 
+\noun on
+Red Hat
+\noun default
+: considerable expertise exists within the organisation that can be exploited
+ if required.
+\end_layout
+
+\begin_layout Subsection
+File System Substitution
+\end_layout
+
+\begin_layout Standard
+The component responsible for substituting file system mounts according
+ to a specification passed on the command line must run during early phases
+ of system boot: either during early user space (initial ramfs), or during
+ the 
+\family typewriter
+init
+\family default
+ phase of boot, but before the system has reached the 
+\family typewriter
+local-fs
+\family default
+ or 
+\family typewriter
+basic
+\family default
+ targets.
+ This means that local file systems may not be mounted, and some libraries
+ and runtime environments may not be available.
+\end_layout
+
+\begin_layout Standard
+This suggests a need for this component to be either so simple that it is
+ guaranteed to run in all of these contexts (a 
+\noun on
+POSIX
+\noun default
+ shell script), or to be written in a compiled language with strict control
+ over library usage in order to produce a binary that can be executed during
+ these phases of system initialisation.
+\end_layout
+
+\begin_layout Subsection
+Snapshot Manager
+\end_layout
+
+\begin_layout Standard
+The Snapshot Manager is currently the most distant, and least certain aspect
+ of the proposal: many decisions can be deferred until other aspects of
+ the work are complete, including the choice of implementation language.
+ The ideal model may involve a small set of core components written in a
+ compiled langugage, with more peripheral elements (for example, a graphical
+ user interface) written in other higher-level languages as appropriate.
+\end_layout
+
+\begin_layout Section
+Library Interfaces
+\end_layout
+
+\begin_layout Standard
+Both the Boot Manager and Snapshot Manager should export fucionality via
+ clearly defined programmatic interfaces, in addition to the user-oriented
+ command line interface.
+\end_layout
+
+\begin_layout Standard
+The file system subsitution mechanism only offers a single.
+ simple interface with substitution specifications passed on the kernel
+ command line.
+ No need is anticipated for a means to re-configure the facility at runtime
+ since it is expected to be configured once, at boot time, and to remain
+ in place until system shutdown.
+\end_layout
+
+\begin_layout Bibliography
+\begin_inset CommandInset bibitem
+LatexCommand bibitem
+key "stratis"
+
+\end_inset
+
+Stratis Storage
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset Flex URL
+status collapsed
+
+\begin_layout Plain Layout
+
+https://stratis-storage.github.io/
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Bibliography
+\begin_inset CommandInset bibitem
+LatexCommand bibitem
+key "stratisdesign"
+
+\end_inset
+
+Stratis Design
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset Flex URL
+status collapsed
+
+\begin_layout Plain Layout
+
+https://stratis-storage.github.io/StratisSoftwareDesign.pdf
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Bibliography
+\begin_inset CommandInset bibitem
+LatexCommand bibitem
+key "dracut"
+
+\end_inset
+
+Dracut
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset Flex URL
+status collapsed
+
+\begin_layout Plain Layout
+
+https://dracut.wiki.kernel.org/index.php/Main_Page
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Bibliography
+\begin_inset CommandInset bibitem
+LatexCommand bibitem
+key "dracutpr"
+
+\end_inset
+
+Dracut PR#223
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset Flex URL
+status collapsed
+
+\begin_layout Plain Layout
+
+https://github.com/dracutdevs/dracut/pull/223
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Bibliography
+\begin_inset CommandInset bibitem
+LatexCommand bibitem
+key "snapper"
+
+\end_inset
+
+Snapper
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset Flex URL
+status collapsed
+
+\begin_layout Plain Layout
+
+http://snapper.io/
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Bibliography
+\begin_inset CommandInset bibitem
+LatexCommand bibitem
+key "snapperissue"
+
+\end_inset
+
+Snapper Issue#178
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset Flex URL
+status collapsed
+
+\begin_layout Plain Layout
+
+https://github.com/openSUSE/snapper/issues/178
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Bibliography
+\begin_inset CommandInset bibitem
+LatexCommand bibitem
+key "snapperlayout"
+
+\end_inset
+
+Snapper layout discussion
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset Flex URL
+status collapsed
+
+\begin_layout Plain Layout
+
+https://bbs.archlinux.org/viewtopic.php?id=194491
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Bibliography
+\begin_inset CommandInset bibitem
+LatexCommand bibitem
+key "beadm"
+
+\end_inset
+
+
+\family typewriter
+beadm
+\family default
+ documentation
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset Flex URL
+status collapsed
+
+\begin_layout Plain Layout
+
+https://docs.oracle.com/cd/E23824_01/html/E21801/index.html#scrolltoc
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Bibliography
+\begin_inset CommandInset bibitem
+LatexCommand bibitem
+key "bootadm"
+
+\end_inset
+
+bootadm documentation
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset Flex URL
+status collapsed
+
+\begin_layout Plain Layout
+
+https://docs.oracle.com/cd/E26505_01/html/E29492/gglaj.html
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Bibliography
+\begin_inset CommandInset bibitem
+LatexCommand bibitem
+key "createsnap"
+
+\end_inset
+
+Creating and copying snapshots
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset Flex URL
+status collapsed
+
+\begin_layout Plain Layout
+
+https://docs.oracle.com/cd/E23824_01/html/E21801/snapshot.html#scrolltoc
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Bibliography
+\begin_inset CommandInset bibitem
+LatexCommand bibitem
+key "zfscompat"
+
+\end_inset
+
+ZFS license compatibility
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset Flex URL
+status collapsed
+
+\begin_layout Plain Layout
+
+https://sfconservancy.org/blog/2016/feb/25/zfs-and-linux/
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Bibliography
+\begin_inset CommandInset bibitem
+LatexCommand bibitem
+key "new-kernel-pkg8"
+
+\end_inset
+
+new-kernel-pkg(8)
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset Flex URL
+status collapsed
+
+\begin_layout Plain Layout
+
+https://linux.die.net/man/8/new-kernel-pkg
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Bibliography
+\begin_inset CommandInset bibitem
+LatexCommand bibitem
+key "update-bootloader"
+
+\end_inset
+
+update-bootloader(1)
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset Flex URL
+status collapsed
+
+\begin_layout Plain Layout
+
+http://www.polarhome.com/service/man/?qf=update-bootloader&af=0&sf=0&of=OpenSuSE&t
+f=2
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Bibliography
+\begin_inset CommandInset bibitem
+LatexCommand bibitem
+key "plymouth"
+
+\end_inset
+
+Plymouth
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset Flex URL
+status collapsed
+
+\begin_layout Plain Layout
+
+https://www.freedesktop.org/wiki/Software/Plymouth/
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Bibliography
+\begin_inset CommandInset bibitem
+LatexCommand bibitem
+key "plymouth8"
+
+\end_inset
+
+
+\family typewriter
+plymouth(8)
+\family default
+
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset Flex URL
+status collapsed
+
+\begin_layout Plain Layout
+
+https://linux.die.net/man/8/plymouth
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Bibliography
+\begin_inset CommandInset bibitem
+LatexCommand bibitem
+key "grubby"
+
+\end_inset
+
+Grubby
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset Flex URL
+status collapsed
+
+\begin_layout Plain Layout
+
+https://github.com/rhinstaller/grubby
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Bibliography
+\begin_inset CommandInset bibitem
+LatexCommand bibitem
+key "grubby8"
+
+\end_inset
+
+grubby(8)
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset Flex URL
+status collapsed
+
+\begin_layout Plain Layout
+
+https://linux.die.net/man/8/grubby
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Bibliography
+\begin_inset CommandInset bibitem
+LatexCommand bibitem
+key "grubby-todo"
+
+\end_inset
+
+grubby-TODO
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset Flex URL
+status collapsed
+
+\begin_layout Plain Layout
+
+https://github.com/rhinstaller/grubby/blob/master/TODO
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Bibliography
+\begin_inset CommandInset bibitem
+LatexCommand bibitem
+key "bootloaderspec"
+
+\end_inset
+
+BootLoaderSpec
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset Flex URL
+status collapsed
+
+\begin_layout Plain Layout
+
+https://www.freedesktop.org/wiki/Specifications/BootLoaderSpec/
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Bibliography
+\begin_inset CommandInset bibitem
+LatexCommand bibitem
+key "freedesktop"
+
+\end_inset
+
+Freedesktop.org
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset Flex URL
+status collapsed
+
+\begin_layout Plain Layout
+
+https://www.freedesktop.org/wiki/
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Bibliography
+\begin_inset CommandInset bibitem
+LatexCommand bibitem
+key "rufus"
+
+\end_inset
+
+Rufus
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset Flex URL
+status collapsed
+
+\begin_layout Plain Layout
+
+https://github.com/pbatard/rufus
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Bibliography
+\begin_inset CommandInset bibitem
+LatexCommand bibitem
+key "multiboot"
+
+\end_inset
+
+multiboot
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset Flex URL
+status collapsed
+
+\begin_layout Plain Layout
+
+https://www.gnu.org/software/grub/manual/multiboot/multiboot.html
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Bibliography
+\begin_inset CommandInset bibitem
+LatexCommand bibitem
+key "imgbased"
+
+\end_inset
+
+imgbased_
+\begin_inset Flex URL
+status collapsed
+
+\begin_layout Plain Layout
+
+https://github.com/fabiand/imgbased
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Bibliography
+\begin_inset CommandInset bibitem
+LatexCommand bibitem
+key "bootloaderspec-mjg59"
+
+\end_inset
+
+BootLoaderSpec-mjg59
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset Flex URL
+status collapsed
+
+\begin_layout Plain Layout
+
+https://www.freedesktop.org/wiki/MatthewGarrett/BootLoaderSpec/
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Bibliography
+\begin_inset CommandInset bibitem
+LatexCommand bibitem
+key "libguestfs"
+
+\end_inset
+
+libguestfs
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset Flex URL
+status collapsed
+
+\begin_layout Plain Layout
+
+http://libguestfs.org/guestfs.3.html
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Bibliography
+\begin_inset CommandInset bibitem
+LatexCommand bibitem
+key "golang"
+
+\end_inset
+
+Go Language
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset Flex URL
+status collapsed
+
+\begin_layout Plain Layout
+
+https://golang.org/
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Bibliography
+\begin_inset CommandInset bibitem
+LatexCommand bibitem
+key "rustlang"
+
+\end_inset
+
+Rust Language
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset Flex URL
+status collapsed
+
+\begin_layout Plain Layout
+
+https://www.rust-lang.org/en-US/
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Bibliography
+\begin_inset CommandInset bibitem
+LatexCommand bibitem
+key "godesc"
+
+\end_inset
+
+Go Description
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset Flex URL
+status collapsed
+
+\begin_layout Plain Layout
+
+https://en.wikipedia.org/wiki/Go_(programming_language)
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_body
+\end_document
