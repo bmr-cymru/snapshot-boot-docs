@@ -2907,7 +2907,11 @@ The
 beadm
 \family default
  command is also responsible for managing and updating bootloader menu entries
- for the managed boot environments, and for calling "bootadm"
+ for the managed boot environments, and for calling "
+\family typewriter
+bootadm
+\family default
+"
 \begin_inset CommandInset citation
 LatexCommand cite
 key "bootadm"
