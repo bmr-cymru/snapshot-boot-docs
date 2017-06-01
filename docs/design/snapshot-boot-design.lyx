@@ -305,24 +305,57 @@ Snapshots may be used to effect a number of useful administrative tasks,
  for example:
 \end_layout
 
-\begin_layout Itemize
+\begin_layout Enumerate
+Creation of a snapshot (read-only or read-write) for consistency checking,
+ and to determine if action is needed on the live data.
+\end_layout
+
+\begin_layout Enumerate
 Point-in-time snapshots for backup and recovery.
 \end_layout
 
-\begin_layout Itemize
-Before-and-after snapshots of system state for testing and roll back.
+\begin_deeper
+\begin_layout Enumerate
+Creation of a stable disk image to be backed up to other media.
 \end_layout
 
-\begin_layout Itemize
-Preparation of standardised 
+\begin_layout Enumerate
+Regular scheduled snapshots on a rolling or persistent basis for 
 \begin_inset Quotes eld
 \end_inset
 
-base images
+live
 \begin_inset Quotes erd
 \end_inset
 
- for further customisation.
+ backup, reference, and recovery.
+\end_layout
+
+\end_deeper
+\begin_layout Enumerate
+Very frequent snapshots to catch brief events or quickly changing content.
+\end_layout
+
+\begin_layout Enumerate
+Before-and-after snapshots of system state for testing and roll back.
+\end_layout
+
+\begin_layout Enumerate
+Creation of temporary environments for testing updates and changes, to be
+ either discarded or merged into the main volume at a later time.
+\end_layout
+
+\begin_layout Enumerate
+Creation of stable, re-usable test configurations for quality assurance
+ and continuous integration.
+\end_layout
+
+\begin_layout Enumerate
+Preparation of standardised 
+\emph on
+base image
+\emph default
+s for further customisation.
 \end_layout
 
 \begin_layout Standard
