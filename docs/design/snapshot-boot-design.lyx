@@ -465,9 +465,13 @@ root=/dev/mapper/vg00-lvol0 rd.lvm.lv=vg00/lvol0
 
 \begin_layout Standard
 Note that current syntax requires that the device be specified twice: firstly
- as a device node or symbolic link path in "/dev" to set the system root
- device, and then a second time as a direction to early userspace to activate
- the appropriate device (this time using LVM2 "
+ as a device node or symbolic link path in "
+\family typewriter
+/dev
+\family default
+" to set the system root device, and then a second time as a direction to
+ early userspace to activate the appropriate device (this time using LVM2
+ "
 \family typewriter
 VG
 \family default
