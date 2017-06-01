@@ -3432,7 +3432,11 @@ Red Hat Enterprise Linux 7
 Fedora
 \noun default
  releases, since these include support for BLS.
- It is expected that additional architectures and distributions can be addressed
+ 
+\end_layout
+
+\begin_layout Standard
+It is expected that additional architectures and distributions can be addressed
  with relatively little effort at a later time
 \begin_inset Foot
 status collapsed
