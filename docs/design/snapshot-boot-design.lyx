@@ -3646,10 +3646,13 @@ File System Substitution
 The component responsible for file system substitution must accept a value
  on the kernel command line and perform the requested mount point substitutions
  during the boot process.
- There are two points at which the opportunity to make these changes exists:
+\end_layout
+
+\begin_layout Standard
+There are two points at which the opportunity to make these changes exists:
  (i) during early user space processing (initial ramfs), after the selection
  and mount of the root device, but before the pivot of the system root,
- and (ii) before 
+ and (ii) after the pivot, but before 
 \family typewriter
 systemd
 \family default
@@ -3685,6 +3688,228 @@ fstab
 mount(8)
 \family default
  which operate on this file will behave as expected.
+\end_layout
+
+\begin_layout Subsection
+Direct modification of 
+\family typewriter
+fstab
+\end_layout
+
+\begin_layout Standard
+It is possible to control the snapshot used by the system by directly modifying
+ the system 
+\family typewriter
+fstab
+\family default
+ before non-root file systems are mounted.
+ While this is the simplest approach it has a number of disadvantages that
+ make it unsuitable for the proposed work:
+\end_layout
+
+\begin_layout Itemize
+Modifying file system content modifies the snapshot being booted
+\end_layout
+
+\begin_layout Itemize
+The substitution needs to be manually torn down at system shut-down time.
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+A backup must be taken of the original content and restored during shut-down.
+\end_layout
+
+\begin_layout Itemize
+A crash, power failure, or other unexpected reboot would leave the system
+ in an inconsistent state: booting into some default root file system with
+ the snapshot auxiliary volumes from the previous boot.
+ This has the potential to lead to confusion, data loss or corruption, and
+ considerable user frustration.
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+User changes made while inside the snapshot environment must also be backed
+ up and restored or they will be lost when the enviironment is next initialised
+ and the 
+\family typewriter
+fstab
+\family default
+ rewritten.
+\end_layout
+
+\begin_layout Subsection
+Substituting 
+\family typewriter
+fstab
+\family default
+ via bind mounts
+\end_layout
+
+\begin_layout Standard
+One method for modifying the 
+\family typewriter
+fstab
+\family default
+ (without needing to revert the changes during shutdown, making the technique
+ safe in the event of a system crash or power failure) is to subsitute a
+ modified copy using a 
+\emph on
+bind mount
+\emph default
+
+\begin_inset CommandInset citation
+LatexCommand cite
+key "bindmount"
+
+\end_inset
+
+.
+ A bind mount remounts part of the file system hierarchy (including a path
+ that resolves to a regular file) to another location in the name space.
+\end_layout
+
+\begin_layout Standard
+For example:
+\end_layout
+
+\begin_layout Verbatim
+
+# Bind '/proc' to '/tmp/proc'
+\end_layout
+
+\begin_layout Verbatim
+
+# mkdir /tmp/proc
+\end_layout
+
+\begin_layout Verbatim
+
+# mount --bint /proc/ /tmp/proc
+\end_layout
+
+\begin_layout Verbatim
+
+# ls -d /proc/1
+\end_layout
+
+\begin_layout Verbatim
+
+/tmp/proc/1
+\end_layout
+
+\begin_layout Verbatim
+
+# umount /tmp/proc
+\end_layout
+
+\begin_layout Standard
+Or using a file path as the bind target:
+\end_layout
+
+\begin_layout Verbatim
+
+# Create a file named 'bar' and bind it to 'foo'
+\end_layout
+
+\begin_layout Verbatim
+
+# echo bar > bar
+\end_layout
+
+\begin_layout Verbatim
+
+# touch foo
+\end_layout
+
+\begin_layout Verbatim
+
+# mount --bind bar foo
+\end_layout
+
+\begin_layout Verbatim
+
+# cat foo
+\end_layout
+
+\begin_layout Verbatim
+
+bar
+\end_layout
+
+\begin_layout Standard
+This allows a copy of the system 
+\begin_inset Quotes eld
+\end_inset
+
+
+\family typewriter
+fstab
+\family default
+
+\begin_inset Quotes erd
+\end_inset
+
+ to be taken in another location, to which subsitutions are made according
+ to a specification.
+ The modified copy is then subtituted for the original by binding to 
+\begin_inset Quotes eld
+\end_inset
+
+
+\family typewriter
+/etc/fstab
+\family default
+
+\begin_inset Quotes erd
+\end_inset
+
+.
+ The modified copy will then remain visible in that name space for the duration
+ of the mount (or until another mount to the same path occurs, or the system
+ is halted).
+ This has the benefit that the mount is torn down automatically, even in
+ the event of an unclean shut-down.
+\end_layout
+
+\begin_layout Subsection
+Substituting individual mounts via bind mounts
+\end_layout
+
+\begin_layout Standard
+It is also possible to use the bind mount mechanism to substitute individual
+ mounts, either before or after, they are mounted from the location specified
+ in the 
+\family typewriter
+fstab
+\family default
+.
+ This has a number of disadvantages for the current proposal:
+\end_layout
+
+\begin_layout Itemize
+Binding substitutions after the system has reached 
+\family typewriter
+local-fs.target
+\family default
+ would leave the original file systems mounted (possibly with some open
+ file descriptors belonging to long-running processes).
+\end_layout
+
+\begin_layout Itemize
+Bind mounting a file system requires that it is already mounted somewhere
+ in the name space: this would create additional steps to first mount, and
+ then re-mount the substituted file systems.
+\end_layout
+
+\begin_layout Itemize
+Tools that read the 
+\family typewriter
+fstab
+\family default
+ may misbehave or give confusing output if the file does not appear to match
+ the current mount state.
 \end_layout
 
 \begin_layout Section
@@ -4666,6 +4891,32 @@ status collapsed
 \begin_layout Plain Layout
 
 http://libguestfs.org/guestfs.3.html
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Bibliography
+\begin_inset CommandInset bibitem
+LatexCommand bibitem
+key "bindmount"
+
+\end_inset
+
+Bind and shared subtree support
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset Flex URL
+status collapsed
+
+\begin_layout Plain Layout
+
+https://github.com/torvalds/linux/blob/master/Documentation/filesystems/sharedsub
+tree.txt
 \end_layout
 
 \end_inset
