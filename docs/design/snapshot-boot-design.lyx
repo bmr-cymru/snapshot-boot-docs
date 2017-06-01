@@ -591,11 +591,7 @@ A number of goals and concrete proposals for the current work are suggested.
 
 \begin_layout Standard
 It is expected that these can be delivered as a number of discrete milestones
- over a time-scale of one to two 
-\noun on
-RHEL
-\noun default
- update releases.
+ over a time-scale of one to two years.
  This is an aggressive and ambitious schedule and progress towards milestones
  will need to be carefully tracked to ensure delivery of core functionality
  on time.
@@ -628,7 +624,7 @@ t tools we hope to introduce as part of this work.
 \begin_layout Standard
 Although this is not a configuration method that we wish to promote, or
  to advise users to deploy, not documenting it at all seems incomplete,
- and inconsistent with other aspects of product documentation (for instance,
+ and inconsistent with other aspects of system documentation (for instance,
  the 
 \begin_inset Quotes eld
 \end_inset
@@ -707,15 +703,8 @@ ons, few administrators are aware of, or make use of this functionality
 
 \begin_layout Standard
 With appropriate tools these powerful features would be accessible to a
- much wider audience of 
-\noun on
-Red Hat
-\noun default
- users and customers, as well as to teams developing products using 
-\noun on
-RHEL
-\noun default
- as a base operating system.
+ much wider audience of system administrators, users and developers, as
+ well as to teams developing projects using Linux as a base operating system.
 \end_layout
 
 \begin_layout Subsubsection
@@ -1132,11 +1121,7 @@ Since today there is very little cooperation between distributions on shared
 \end_layout
 
 \begin_layout Standard
-Bootloaders in use on 
-\noun on
-Red Hat
-\noun default
- distributions include:
+Bootloaders in use today include:
 \end_layout
 
 \begin_layout Description
@@ -1250,6 +1235,39 @@ IBM System z
 \family default
 \noun default
 .
+ The current releases of 
+\noun on
+Ubuntu
+\noun default
+ (
+\noun on
+Ubuntu
+\noun default
+ 16.04) and 
+\noun on
+OpenSuSE
+\noun default
+ (the rolling 
+\noun on
+Tumbleweed
+\noun default
+ release and 
+\noun on
+OpenSuSE Leap
+\noun default
+ 42.2) both use the grub2 boot loader by default (although do not support
+ the 
+\emph on
+BootLoader Specification
+\emph default
+ extensions discussed in 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "subsec:BootLoader-Specification"
+
+\end_inset
+
+).
 \end_layout
 
 \begin_layout Subsection
@@ -1275,7 +1293,23 @@ Fedora 10
 \noun on
 Red Hat Enterprise Linux 6
 \noun default
-.
+, and is currently used in 
+\noun on
+Ubuntu
+\noun default
+ (16.04) and 
+\noun on
+OpenSuSE
+\noun default
+ (
+\noun on
+Tumbleweed
+\noun default
+ / 
+\noun on
+Leap
+\noun default
+ 42.2)
 \end_layout
 
 \begin_layout Standard
@@ -1813,6 +1847,12 @@ update-bootloader
 \end_layout
 
 \begin_layout Subsection
+\begin_inset CommandInset label
+LatexCommand label
+name "subsec:BootLoader-Specification"
+
+\end_inset
+
 BootLoader Specification
 \end_layout
 
@@ -2557,12 +2597,8 @@ ZFS
 \end_layout
 
 \begin_layout Standard
-This section focuses on the two implementations of most obvious competitive
- relevance to 
-\noun on
-Red Hat
-\noun default
-: 
+This section focuses on the implementations of most immediate relevance:
+ 
 \noun on
 Oracle Solaris
 \noun default
@@ -2570,7 +2606,7 @@ Oracle Solaris
 \family typewriter
 ZFS
 \family default
-, and 
+, 
 \noun on
 SuSE
 \noun default
@@ -3033,9 +3069,12 @@ Stratis Storage
 \end_layout
 
 \begin_layout Standard
-The Stratis Storage project aims to provide ZFS/Btrfs-style volume management
- and file system features by integrating layers of existing technology:
- Linux's 
+The Stratis Storage project aims to provide 
+\family typewriter
+ZFS
+\family default
+/BTRFS-style volume management and file system features by integrating layers
+ of existing technology: Linux's 
 \family typewriter
 device-mapper
 \family default
@@ -3711,11 +3750,11 @@ For interpreted languages,
 \noun on
 Python
 \noun default
- has the advantage of widespread adoption at 
+ has the advantage of widespread adoption in 
 \noun on
 Red Hat
 \noun default
- and a large and active internal development community.
+ distributions, and a large and active development community.
  Alternatives include 
 \noun on
 Perl
@@ -3724,8 +3763,7 @@ Perl
 \noun on
 Ruby
 \noun default
- but these have a smaller internal developer presence and are less widely
- adopted in the distribution.
+ but these have a smaller systems programming footprint in today's distributions.
 \end_layout
 
 \begin_layout Standard
@@ -3814,11 +3852,28 @@ Some initial prototyping work has been carried out in
 \noun on
 Python
 \noun default
- and this is a commonly used language for similar development tasks at 
+ and this is a commonly used language for similar development projects in
+ 
 \noun on
-Red Hat
+Red
+\begin_inset space ~
+\end_inset
+
+Hat
+\begin_inset space ~
+\end_inset
+
+Enterprise
+\begin_inset space ~
+\end_inset
+
+Linux
 \noun default
-: considerable expertise exists within the organisation that can be exploited
+ and 
+\noun on
+Fedora
+\noun default
+: considerable expertise exists among these communities that can be exploited
  if required.
 \end_layout
 
