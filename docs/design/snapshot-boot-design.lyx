@@ -801,8 +801,40 @@ Stratis
 \end_layout
 
 \begin_layout Standard
-This also creates an integration point for further enhancements, for example
- adding policies to control various aspects of snapshot maintenance.
+As well as avoiding the need to modify the tools of every snapshot implementatio
+n this creates a consistent and uniform experience for users, indepenent
+ of the particular snapshot technology in use.
+ This benefits users migrating from one technology to another (for example,
+ from a distribution using 
+\family typewriter
+BTRFS
+\family default
+ for the root file system to one using 
+\family typewriter
+LVM2
+\family default
+, or a move from classic 
+\family typewriter
+LVM2
+\family default
+ snapshots to 
+\family typewriter
+LVM2
+\family default
+ using thin provisioning), allows the creation of consolidated documentation
+ and other learning materials, and simplifies the extension of the feature
+ to additional backend mechanisms (for example, 
+\noun on
+Stratis
+\noun default
+).
+\end_layout
+
+\begin_layout Standard
+This addition of a new component for snapshot management creates an integration
+ point for further enhancements, for example adding policies to control
+ various aspects of snapshot maintenance, and interfaces to provide monitoring
+ and statistical information on snapshot usage.
 \end_layout
 
 \begin_layout Subsection
