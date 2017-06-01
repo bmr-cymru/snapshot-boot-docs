@@ -590,8 +590,8 @@ A number of goals and concrete proposals for the current work are suggested.
 \end_layout
 
 \begin_layout Standard
-It is expected that these can be delivered as a number of discrete milestones
- over a time-scale of one to two years.
+It is expected that the core and additional goals can be delivered as a
+ number of discrete milestones over a time-scale of one to two years.
  This is an aggressive and ambitious schedule and progress towards milestones
  will need to be carefully tracked to ensure delivery of core functionality
  on time.
@@ -842,10 +842,15 @@ Additional Goals
 \end_layout
 
 \begin_layout Standard
-Additional goals, beyond the core functionality required for snapshot boot
- support, are presented in this section.
- These represent significant additional value that may be added once basic
- functionality is complete.
+Additional goals, beyond the core functionality required to boot into a
+ snapshot of the root file system, are presented in this section.
+\end_layout
+
+\begin_layout Standard
+These items are not essential to the aim of allowing a user to boot into
+ a selected snapshot of the root file system but provide considerable added
+ value, allowing the user to more precisely recreate system state by including
+ auxiliary file systems in the snapshot boot configuration.
 \end_layout
 
 \begin_layout Subsubsection
@@ -938,8 +943,20 @@ ding boot entry that includes the necessary file system substitution if
  
 \end_layout
 
+\begin_layout Subsection
+Future extensions
+\end_layout
+
+\begin_layout Standard
+Once the snapshot boot mechanism and snapshot management tools are established
+ it becomes possible to deliver additional snapshot driven features beyond
+ the basic capacity to boot the system into a prior state: although unrelated
+ to the boot capability, these represent potentially significant added functiona
+lity and value.
+\end_layout
+
 \begin_layout Subsubsection
-Goal: Simplify management of large numbers of bootable snapshots
+Goal: Simplify management of large numbers of snapshots
 \end_layout
 
 \begin_layout Standard
