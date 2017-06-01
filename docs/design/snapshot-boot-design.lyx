@@ -1015,7 +1015,7 @@ By providing hooks that the administrator, or other applications can use
 \end_layout
 
 \begin_layout Subsubsection
-Goal: Simplify file operations on snapshot volumes
+Goal: Simplify file operations on inactive snapshot volumes
 \end_layout
 
 \begin_layout Standard
@@ -1023,7 +1023,17 @@ In addition to booting into snapshots to perform administrative tasks, it
  is useful in some instances to be able to inspect these volumes from the
  running system, and even to perform actions within them (running a command,
  accessing file content).
- Providing automated mechanisms to allow these operations avoids the need
+\end_layout
+
+\begin_layout Standard
+Normally this would involve the administrator activating the volume, determining
+ a path where it can be termporarily mounted, and issuing a command to mount
+ the device before carrying whatever task is needed, and then reversing
+ these steps once the volume is no longer required.
+\end_layout
+
+\begin_layout Standard
+Providing automated mechanisms to allow these operations avoids the need
  to disrupt the system by rebooting for simple tasks, and simplifies the
  execution of these tasks on the running system by automating snapshot activatio
 n and mount operations.
