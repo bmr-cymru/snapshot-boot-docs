@@ -289,15 +289,15 @@ device-mapper
 \noun on
 Stratis
 \noun default
-, has been proposed and may in time provide another means to implement volume
- snapshots
+
 \begin_inset CommandInset citation
 LatexCommand cite
 key "stratis"
 
 \end_inset
 
-.
+, has been proposed and may in time provide another means to implement volume
+ snapshots.
 \end_layout
 
 \begin_layout Standard
