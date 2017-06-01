@@ -459,6 +459,7 @@ For example
 \end_layout
 
 \begin_layout Verbatim
+
 root=/dev/mapper/vg00-lvol0 rd.lvm.lv=vg00/lvol0
 \end_layout
 
@@ -537,6 +538,7 @@ rootflags=
 \end_layout
 
 \begin_layout Verbatim
+
 root=/dev/sda2 rootflags=subvolid=262
 \end_layout
 
@@ -1325,23 +1327,28 @@ These verbs accept the following options:
 \end_layout
 
 \begin_layout Verbatim
+
 Options for ask-for-password command:
 \end_layout
 
 \begin_layout Verbatim
+
   --command=<string> Command to send password to via standard input
 \end_layout
 
 \begin_layout Verbatim
+
   --prompt=<string> Message to display when asking for password
 \end_layout
 
 \begin_layout Verbatim
+
   --number-of-tries=<integer> Number of times to ask before giving up (requires
  --command)
 \end_layout
 
 \begin_layout Verbatim
+
   --dont-pause-progress Don't pause boot progress bar while asking
 \end_layout
 
@@ -1350,18 +1357,22 @@ Options for ask-for-password command:
 \end_layout
 
 \begin_layout Verbatim
+
 Options for ask-question command:
 \end_layout
 
 \begin_layout Verbatim
+
   --command=<string> Command to send the answer to via standard input
 \end_layout
 
 \begin_layout Verbatim
+
   --prompt=<string> Message to display when asking the question
 \end_layout
 
 \begin_layout Verbatim
+
   --dont-pause-progress Don't pause boot progress bar while asking
 \end_layout
 
@@ -1370,10 +1381,12 @@ Options for ask-question command:
 \end_layout
 
 \begin_layout Verbatim
+
 Options for display-message command:
 \end_layout
 
 \begin_layout Verbatim
+
   --text=<string> The message text
 \end_layout
 
@@ -1382,10 +1395,12 @@ Options for display-message command:
 \end_layout
 
 \begin_layout Verbatim
+
 Options for hide-message command:
 \end_layout
 
 \begin_layout Verbatim
+
   --text=<string> The message text
 \end_layout
 
@@ -1394,14 +1409,17 @@ Options for hide-message command:
 \end_layout
 
 \begin_layout Verbatim
+
 Options for watch-keystroke command:
 \end_layout
 
 \begin_layout Verbatim
+
   --command=<string> Command to send keystroke to via standard input
 \end_layout
 
 \begin_layout Verbatim
+
   --keys=<string> Keys to become sensitive to
 \end_layout
 
@@ -1410,10 +1428,12 @@ Options for watch-keystroke command:
 \end_layout
 
 \begin_layout Verbatim
+
 Options for ignore-keystroke command:
 \end_layout
 
 \begin_layout Verbatim
+
   --keys=<string> Keys to remove sensitivity to 
 \end_layout
 
@@ -2294,14 +2314,17 @@ For example:
 \end_layout
 
 \begin_layout Verbatim
+
 6a9857a393724b7a981ebb5b8495b9ea-3.8.0-2.fc19.x86_64.conf
 \end_layout
 
 \begin_layout Verbatim
+
 064d6dfabdea4552b3483779f63b656e-4.8.6-300.fc25.x86_64.conf
 \end_layout
 
 \begin_layout Verbatim
+
 064d6dfabdea4552b3483779f63b656e-4.10.11-200.fc25.x86_64.conf
 \end_layout
 
@@ -2318,26 +2341,32 @@ a Fedora 25
 \end_layout
 
 \begin_layout Verbatim
+
 title Fedora 25 (Workstation Edition)
 \end_layout
 
 \begin_layout Verbatim
+
 version 4.10.11-200.fc25.x86_64
 \end_layout
 
 \begin_layout Verbatim
+
 machine-id 064d6dfabdea4552b3483779f63b656e
 \end_layout
 
 \begin_layout Verbatim
+
 options ro root=/dev/mapper/vg_f25-root rd.lvm.lv=vg_f25/root LANG=en_GB.UTF-8
 \end_layout
 
 \begin_layout Verbatim
+
 linux /064d6dfabdea4552b3483779f63b656e/4.10.11-200.fc25.x86_64/vmlinuz
 \end_layout
 
 \begin_layout Verbatim
+
 initrd /064d6dfabdea4552b3483779f63b656e/4.10.11-200.fc25.x86_64/initramfs
 \end_layout
 
