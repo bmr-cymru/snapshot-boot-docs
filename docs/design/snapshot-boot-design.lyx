@@ -609,10 +609,79 @@ Proposal: document kernel command line parameters for booting snapshots
 
 \begin_layout Standard
 By explicitly documenting the ability to boot into a snapshot of the root
- file system, in product documentation, portal content, and elsewhere, the
+ file system, in product content, tool documentation, and elsewhere, the
  functionality can be made available to a wider audience with minimal effort.
  This will also create additional interest in the type of higher-level managemen
 t tools we hope to introduce as part of this work.
+\end_layout
+
+\begin_layout Standard
+Although this is not a configuration method that we wish to promote, or
+ to advise users to deploy, not documenting it at all seems incomplete,
+ and inconsistent with other aspects of product documentation (for instance,
+ the 
+\begin_inset Quotes eld
+\end_inset
+
+
+\family typewriter
+kexec
+\family default
+
+\begin_inset Quotes erd
+\end_inset
+
+ facility, which is fully documented although we only support, and encourage
+ users to configure it, via the 
+\begin_inset Quotes eld
+\end_inset
+
+
+\family typewriter
+kdump
+\family default
+
+\begin_inset Quotes erd
+\end_inset
+
+ tools, or the 
+\begin_inset Quotes eld
+\end_inset
+
+
+\family typewriter
+iptables
+\family default
+
+\begin_inset Quotes erd
+\end_inset
+
+ firewall, which we strongly encourage users to configure via higher-level
+ mechanisms such as 
+\begin_inset Quotes eld
+\end_inset
+
+
+\family typewriter
+system-config-firewall
+\family default
+
+\begin_inset Quotes erd
+\end_inset
+
+ and 
+\begin_inset Quotes eld
+\end_inset
+
+
+\family typewriter
+firewalld
+\family default
+
+\begin_inset Quotes erd
+\end_inset
+
+).
 \end_layout
 
 \begin_layout Subsubsection
