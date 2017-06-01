@@ -659,20 +659,27 @@ BTRFS
  subvolume identifier: an opaque, numeric identifier assigned by the file
  system that uniquely identifies a particular subvolume within a larger
  BTRFS volume.
- When present this overrides the superblock 
-\emph on
-default subvolume
-\emph default
- setting, forcing the specified subvolumeid to be mounted instead.
 \end_layout
 
 \begin_layout Standard
-
+BTRFS snapshot volumes can also be specified using the 
 \family typewriter
-BTRFS
+subvol
 \family default
- currently does not provide any mechanism to assign more descriptive identifiers
- to snapshots or other subvolumes.
+ path, a path in the volume namespace that resolves to a snapshot subvolume:
+\end_layout
+
+\begin_layout Verbatim
+
+root=/dev/sda2 rootflags=subvol=/snapshots/20170528-1
+\end_layout
+
+\begin_layout Standard
+When either flag is present the value overrides the superblock 
+\emph on
+default subvolume
+\emph default
+ setting, forcing the specified subvolume to be mounted instead.
 \end_layout
 
 \begin_layout Subsection
