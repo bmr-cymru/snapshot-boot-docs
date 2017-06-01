@@ -1275,7 +1275,11 @@ Early user space interaction
 \end_layout
 
 \begin_layout Standard
-The Plymouth
+The 
+\noun on
+Plymouth
+\noun default
+
 \begin_inset CommandInset citation
 LatexCommand cite
 key "plymouth"
@@ -1324,13 +1328,13 @@ plymouthd
 
 \begin_layout Standard
 In addition to the progress indication and logging services provided by
- Plymouth, limited interaction with the user is permitted in order to obtain
+ plymouth, limited interaction with the user is permitted in order to obtain
  answers to simple question/response prompts, or to provide specific information
  (typically authentication or decryption passwords).
 \end_layout
 
 \begin_layout Standard
-The interaction verbs supported by current versions of Plymouth are
+The interaction verbs supported by current versions (0.8.9) of plymouth are
 \begin_inset CommandInset citation
 LatexCommand cite
 key "plymouth8"
