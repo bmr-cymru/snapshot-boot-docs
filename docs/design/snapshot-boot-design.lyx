@@ -520,6 +520,34 @@ rootflags=
 root=/dev/sda2 rootflags=subvolid=262
 \end_layout
 
+\begin_layout Standard
+The identifier passed for 
+\family typewriter
+subvolid
+\family default
+ is the 
+\family typewriter
+BTRFS
+\family default
+ subvolume identifier: an opaque, numeric identifier assigned by the file
+ system that uniquely identifies a particular subvolume within a larger
+ BTRFS volume.
+ When present this overrides the superblock 
+\emph on
+default subvolume
+\emph default
+ setting, forcing the specified subvolumeid to be mounted instead.
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+BTRFS
+\family default
+ currently does not provide any mechanism to assign more descriptive identifiers
+ to snapshots or other subvolumes.
+\end_layout
+
 \begin_layout Subsection
 Core Goals
 \end_layout
