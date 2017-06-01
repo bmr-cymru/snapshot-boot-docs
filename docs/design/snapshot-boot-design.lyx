@@ -503,7 +503,7 @@ Note that current syntax requires that the device be specified twice: firstly
 /dev
 \family default
 " to set the system root device, and then a second time as a direction to
- early userspace to activate the appropriate device (this time using LVM2
+ early user space to activate the appropriate device (this time using LVM2
  "
 \family typewriter
 VG
@@ -785,9 +785,9 @@ Goal: Automate the management of boot entries for snapshots
 
 \begin_layout Standard
 Once tooling has been established to allow bootloader entries for snapshots
- to be createfamiliard and managed, it is possible to further simplify the
- administrator's task by automating the process of adding and removing the
- required bootloader configuration when snapshots are created or removed.
+ to be created and managed, it is possible to further simplify the administrator
+'s task by automating the process of adding and removing the required bootloader
+ configuration when snapshots are created or removed.
 \end_layout
 
 \begin_layout Standard
@@ -835,7 +835,7 @@ Stratis
 
 \begin_layout Standard
 As well as avoiding the need to modify the tools of every snapshot implementatio
-n this creates a consistent and uniform experience for users, indepenent
+n this creates a consistent and uniform experience for users, independent
  of the particular snapshot technology in use.
  This benefits users migrating from one technology to another (for example,
  from a distribution using 
@@ -856,7 +856,7 @@ LVM2
 \family default
  using thin provisioning), allows the creation of consolidated documentation
  and other learning materials, and simplifies the extension of the feature
- to additional backend mechanisms (for example, 
+ to additional back-end mechanisms (for example, 
 \noun on
 Stratis
 \noun default
@@ -998,7 +998,7 @@ When regular snapshots of the system are taken, or when snapshots are preserved
  on the system.
  This is a problem for several reasons: large numbers of entries clutter
  system menus and tool output, making selections more difficult to navigate
- while increasing the risk of error, as well as lenghtening the time taken
+ while increasing the risk of error, as well as lengthening the time taken
  for the user to make a correct selection,
 \end_layout
 
@@ -1060,7 +1060,7 @@ In addition to booting into snapshots to perform administrative tasks, it
 
 \begin_layout Standard
 Normally this would involve the administrator activating the volume, determining
- a path where it can be termporarily mounted, and issuing a command to mount
+ a path where it can be temporarily mounted, and issuing a command to mount
  the device before carrying whatever task is needed, and then reversing
  these steps once the volume is no longer required.
 \end_layout
@@ -1414,7 +1414,7 @@ Plymouth consists of a daemon,
 plymouthd
 \family default
 , which manages the display and handles requests from clients, and a command
- line and liibrary interface used to notify the daemon of state changes,
+ line and library interface used to notify the daemon of state changes,
  and to request user interaction via the console.
 \end_layout
 
@@ -1577,8 +1577,8 @@ Options for ignore-keystroke command:
 
 \begin_layout Standard
 While it is technically possible to envisage using these primitives to implement
- a snapshot selection mechanism during early user space, the available primimtiv
-es are limited and would make construction of menus having numerous entries
+ a snapshot selection mechanism during early user space, the available primitive
+s are limited and would make construction of menus having numerous entries
  awkward and clumsy, and enforces a question-response type of interaction
  (without the ability to, for example, scroll through the available entries).
 \end_layout
@@ -1588,7 +1588,7 @@ Discussions with the original authors of Plymouth indicate that there is
  no interest in extending the interaction capabilities of the tool at this
  time: avoiding complexities such as internationalisation and font configuration
  during this phase of boot form part of the design goals of Plymouth and
- there is active hostility towards ehnancing this mechanism to support more
+ there is active hostility towards enhancing this mechanism to support more
  complex interaction.
 \end_layout
 
@@ -2030,7 +2030,7 @@ grubby
 \family typewriter
 perl-Bootloader
 \family default
- is the need to accomodate both manual and machine modifications to the
+ is the need to accommodate both manual and machine modifications to the
  configuration as well as ambiguous or variable aspects of each boot loader's
  native configuration syntax).
 \end_layout
@@ -2842,7 +2842,7 @@ key "snapperlayout"
 
 \begin_layout Standard
 There are also concerns with the fact that Snapper currently stores its
- snapshot metadata in a subdirectory within the volume that is being snapshotted.
+ snapshot meta data in a subdirectory within the volume that is being managed.
  This causes problems during recovery in some cases - a common workaround
  is to relocate the directory elsewhere and replace the original with a
  symbolic link
@@ -3219,7 +3219,7 @@ device-mapper
 \family typewriter
 XFS
 \family default
- filesystem.
+ file system.
  The project is relatively new but is under very active development and
  may represent a future snapshot management technology alongside the existing
  LVM2 and BTRFS stacks.
@@ -3341,7 +3341,7 @@ In order to provide comprehensive management of the snapshot boot facility
 \end_layout
 
 \begin_layout Subsection
-Fle system substitution requirements
+File system substitution requirements
 \end_layout
 
 \begin_layout Subsubsection
@@ -3774,7 +3774,7 @@ A crash, power failure, or other unexpected reboot would leave the system
 \end_deeper
 \begin_layout Itemize
 User changes made while inside the snapshot environment must also be backed
- up and restored or they will be lost when the enviironment is next initialised
+ up and restored or they will be lost when the environment is next initialised
  and the 
 \family typewriter
 fstab
@@ -3795,9 +3795,9 @@ One method for modifying the
 \family typewriter
 fstab
 \family default
- (without needing to revert the changes during shutdown, making the technique
- safe in the event of a system crash or power failure) is to subsitute a
- modified copy using a 
+ (without needing to revert the changes during shut-down, making the technique
+ safe in the event of a system crash or power failure) is to substitute
+ a modified copy using a 
 \emph on
 bind mount
 \emph default
@@ -3894,9 +3894,9 @@ fstab
 \begin_inset Quotes erd
 \end_inset
 
- to be taken in another location, to which subsitutions are made according
+ to be taken in another location, to which substitutions are made according
  to a specification.
- The modified copy is then subtituted for the original by binding to 
+ The modified copy is then substituted for the original by binding to 
 \begin_inset Quotes eld
 \end_inset
 
@@ -4003,7 +4003,7 @@ Fixes to dracut required to support thin snapshots
 
 \end_deeper
 \begin_layout Enumerate
-File system subsitution mechanism
+File system substitution mechanism
 \begin_inset CommandInset label
 LatexCommand label
 name "enu:File-system-subsitution"
@@ -4103,8 +4103,8 @@ tion.
 \end_layout
 
 \begin_layout Standard
-Where some components must execute in restricted environments (early userspace,
- pre-
+Where some components must execute in restricted environments (early user
+ space, pre-
 \family typewriter
 basic.target
 \family default
@@ -4187,7 +4187,7 @@ Go
 \noun default
  seems set to increase they are still relatively young languages, and questions
  remain over long-term maintenance and support.
- In addition there is limited exerptise in either language in the device-mapper
+ In addition there is limited expertise in either language in the device-mapper
  and LVM2 developer community.
 \end_layout
 
@@ -4294,7 +4294,7 @@ The Snapshot Manager is currently the most distant, and least certain aspect
  of the proposal: many decisions can be deferred until other aspects of
  the work are complete, including the choice of implementation language.
  The ideal model may involve a small set of core components written in a
- compiled langugage, with more peripheral elements (for example, a graphical
+ compiled language, with more peripheral elements (for example, a graphical
  user interface) written in other higher-level languages as appropriate.
 \end_layout
 
@@ -4303,18 +4303,18 @@ Library Interfaces
 \end_layout
 
 \begin_layout Standard
-Both the Boot Manager and Snapshot Manager should export fucionality via
+Both the Boot Manager and Snapshot Manager should export functionality via
  clearly defined programmatic interfaces, in addition to the user-oriented
  command line interface.
 \end_layout
 
 \begin_layout Standard
-The file system subsitution mechanism only offers a single.
+The file system substitution mechanism only offers a single.
  simple interface with substitution specifications passed on the kernel
  command line.
  No need is anticipated for a means to re-configure the facility at runtime
  since it is expected to be configured once, at boot time, and to remain
- in place until system shutdown.
+ in place until system shut-down.
 \end_layout
 
 \begin_layout Bibliography
