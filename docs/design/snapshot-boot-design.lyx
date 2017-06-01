@@ -487,7 +487,11 @@ A bug currently exists in
 \family typewriter
 dracut
 \family default
- that prevents this syntax from activating LVM2 thin snapshots: this is
+ (dracut-
+\family typewriter
+044
+\family default
+) that prevents this syntax from activating LVM2 thin snapshots: this is
  because these snapshots have the 
 \emph on
 activation skip
