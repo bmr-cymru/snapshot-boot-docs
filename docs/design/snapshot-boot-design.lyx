@@ -2184,15 +2184,52 @@ Hat
 \end_layout
 
 \begin_layout Standard
-As the requirements for the shared 
+The standard is appealing for the current work in part because it directly
+ aims to solve the problem of a shared, system-wide 
+\begin_inset Quotes eld
+\end_inset
+
+
 \family typewriter
-\series bold
-$BOOT
+/boot
 \family default
-\series default
- model that the standard aims to enable are highly convergent with the needs
- of flexible snapshot boot support, generating BLS compliant boot configuration
- is the primary aim of the proposed Boot Manager tool.
+
+\begin_inset Quotes erd
+\end_inset
+
+, and to solve the difficulties in configuration and file conflicts that
+ arise.
+\end_layout
+
+\begin_layout Standard
+These problems are a direct superset of the problems facing a snapshot boot
+ implementation: where the operating system instances considered by the
+ BLS are independent distributions (or even operating systems), the instances
+ considered in the case of snapshot boot are simply multiple, divergent
+ copies of one operating system instance.
+\end_layout
+
+\begin_layout Standard
+It is this convergence of problem and requirement that makes the BLS solution
+ readily adaptable to snapshot boot needs: an early prototype of the boot
+ manager data store was developed prior to the authors adopting the BLS
+ and considerable agreement existed between the two, in terms of the information
+ present, data layout and directory structure.
+\end_layout
+
+\begin_layout Standard
+For this reason, it is proposed that the immediate priority for the Boot
+ Manager be to generate BLS compliant boot configuration on systems where
+ a compliant boot loader is available, and that the formats used for this
+ information by the Boot Manager and BLS be treated as the authoritative
+ store of this data.
+ For platforms where no bootloader that implements BLS is available (for
+ example, 
+\noun on
+IBM z systems
+\noun default
+), an extension may be created to render Boot Manager or BLS data into the
+ native configuration syntax.
 \end_layout
 
 \begin_layout Standard
