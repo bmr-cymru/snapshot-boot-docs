@@ -2776,6 +2776,391 @@ grub2
  package.
 \end_layout
 
+\begin_layout Subsection
+Alternate proposals
+\end_layout
+
+\begin_layout Subsubsection
+Directly booting LVM2 volumes and supporting 
+\begin_inset Quotes eld
+\end_inset
+
+
+\family typewriter
+/boot
+\family default
+
+\begin_inset Quotes erd
+\end_inset
+
+ on LVM2 devices
+\end_layout
+
+\begin_layout Standard
+It has been suggested by the LVM development team that the problem of booting
+ directly to snapshot volumes (as well as other complex volume types) be
+ addressed by enhancing the native 
+\family typewriter
+grub2
+\family default
+ support for booting 
+\family typewriter
+LVM2
+\family default
+ volumes and allowing both the target root file system, and the 
+\begin_inset Quotes eld
+\end_inset
+
+
+\family typewriter
+/boot
+\family default
+
+\begin_inset Quotes erd
+\end_inset
+
+ file system to be hosted on LVM2 devices (or obviating the need for a separate
+ 
+\begin_inset Quotes eld
+\end_inset
+
+
+\family typewriter
+/boot
+\family default
+
+\begin_inset Quotes erd
+\end_inset
+
+ entirely, and allowing it to become a directory within the root file system).
+\end_layout
+
+\begin_layout Standard
+Boot entries for snapshot volumes would then be identified either via the
+ existing 
+\begin_inset Quotes eld
+\end_inset
+
+
+\family typewriter
+grub2-mkconfig
+\family default
+
+\begin_inset Quotes erd
+\end_inset
+
+ discovery framework
+\begin_inset Foot
+status collapsed
+
+\begin_layout Plain Layout
+Using the 
+\noun on
+Debian
+\noun default
+ 
+\begin_inset Quotes eld
+\end_inset
+
+
+\family typewriter
+os-prober
+\family default
+
+\begin_inset Quotes erd
+\end_inset
+
+
+\begin_inset CommandInset citation
+LatexCommand cite
+key "osprober"
+
+\end_inset
+
+ tool that is currently used to automatically detect Linux operating system
+ instances installed to system devices
+\end_layout
+
+\end_inset
+
+, or by enhancing 
+\family typewriter
+grub2
+\family default
+ to directly detect and enumerate operating system instances located in
+ LVM2 volumes.
+\end_layout
+
+\begin_layout Standard
+Enhancing 
+\family typewriter
+grub2
+\family default
+ to directly comprehend LVM2 metadata, and to be able to place the 
+\begin_inset Quotes eld
+\end_inset
+
+
+\family typewriter
+/boot
+\family default
+
+\begin_inset Quotes erd
+\end_inset
+
+ directory on LVM2 devices are existing long-term goals.
+ Previous efforts in this area (by the 
+\family typewriter
+grub2
+\family default
+ developers) have been lacking in terms of safety guarantees and support
+ for a comprehensive set of LVM2 features:
+\end_layout
+
+\begin_layout Itemize
+
+\family typewriter
+Grub2
+\family default
+ LVM2 runtime is developed independently of upstream LVM2
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+Duplicates internal constants (e.g.
+ 
+\begin_inset Quotes eld
+\end_inset
+
+
+\family typewriter
+GRUB_LVM_LABEL_SCAN_SECTORS
+\family default
+
+\begin_inset Quotes erd
+\end_inset
+
+), assumptions, and implementation, requiring manual synchronisation
+\end_layout
+
+\begin_layout Itemize
+Independently implements and enforces metadata and device checks (e.g.
+ whether a 
+\family typewriter
+pvmove
+\family default
+ is in progress).
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+Limited set of LVM2 features and targets supported.
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+No support for thinly provisioned volumes.
+\end_layout
+
+\begin_layout Itemize
+No support for cache volumes.
+\end_layout
+
+\begin_layout Itemize
+LVM2 RAID support may be out-of-sync with upstream due to separate development.
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+Bugs in 
+\family typewriter
+Grub2
+\family default
+ LVM2 support may cause boot failures, or the bootloader, or kernel to crash,
+ and in some cases could result in data corruption of LVM2 volumes or the
+ devices that contain them.
+\end_layout
+
+\begin_layout Standard
+The LVM development team has proposed the creation of a module, using native
+ LVM2 code for discovery and metadata handling as a solution to these problems
+ and to address the problem of 
+\family typewriter
+grub2
+\family default
+ and LVM2 device support becoming out-of-sync.
+\end_layout
+
+\begin_layout Standard
+This is a viable long-term strategy but significant obstacles exist to realising
+ it in the short term:
+\end_layout
+
+\begin_layout Enumerate
+LVM2 user space run time must be ported to the 
+\family typewriter
+grub2
+\family default
+ run time
+\end_layout
+
+\begin_deeper
+\begin_layout Enumerate
+Requires creation of a compatibility layer to allow LVM2 library code to
+ be compiled and linked into both the usual ELF DSO used by applications
+ on the running system, as well as and appropriate module for the 
+\family typewriter
+grub2
+\family default
+ run time.
+\end_layout
+
+\begin_layout Enumerate
+The 
+\family typewriter
+grub2
+\family default
+ environment is necessarily heavily restricted:
+\end_layout
+
+\begin_deeper
+\begin_layout Enumerate
+No standard I/O
+\end_layout
+
+\begin_layout Enumerate
+Limited memory management model
+\end_layout
+
+\begin_layout Enumerate
+No process management, no 
+\family typewriter
+ioctl
+\family default
+ services
+\end_layout
+
+\begin_layout Enumerate
+Non-standard terminal interaction
+\end_layout
+
+\end_deeper
+\end_deeper
+\begin_layout Enumerate
+Re-licensing of LVM2 components may be required as 
+\family typewriter
+Grub2
+\family default
+ is released under the GPLv3 license.
+\end_layout
+
+\begin_layout Enumerate
+It is unclear how the build for the combined solution would work.
+ Currently the modules linked into grub2 (either into the core image, or
+ as separate loadable modules), are built from a common source tree.
+ Since the proposed module would be developed and maintained in the LVM2
+ source tree from the existing user space code, a mechanism would need to
+ be found to either generate source code for import to the 
+\family typewriter
+grub2
+\family default
+ tree, or to make the necessary build artefacts available from an LVM2 build
+ to be used in order to build 
+\family typewriter
+grub2
+\family default
+.
+\end_layout
+
+\begin_layout Standard
+These challenges can be addressed but involve considerable time-consuming
+ development work and coordination with the maintainers of the 
+\family typewriter
+Grub2
+\family default
+ environment.
+\end_layout
+
+\begin_layout Standard
+There is currently limited experience in developing and debugging software
+ for the 
+\family typewriter
+grub2
+\family default
+ early boot environment in the LVM development team and many routine debugging
+ aids (such as 
+\family typewriter
+valgrind
+\family default
+
+\begin_inset CommandInset citation
+LatexCommand cite
+key "valgrind"
+
+\end_inset
+
+) are not available in this context.
+\end_layout
+
+\begin_layout Subsubsection
+Adopting an existing bootloader abstraction
+\end_layout
+
+\begin_layout Standard
+An alternative to using the 
+\emph on
+BootLoader specification
+\emph default
+ is to adopt one of the existing bootloader abstractions discussed in 
+\begin_inset CommandInset ref
+LatexCommand vref
+reference "subsec:Bootloader-abstractions"
+
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+In a similar manner as is proposed for the 
+\emph on
+Boot Manager
+\emph default
+ using BLS, these tools allow the creation, removal, and configuration of
+ bootloader entries for a given tuple of boot values.
+\end_layout
+
+\begin_layout Standard
+Although this would allow building on existing solutions, rather than developing
+ a new 
+\emph on
+Boot Manager
+\emph default
+ component from scratch, this option was not further considered at this
+ time for the following reasons:
+\end_layout
+
+\begin_layout Itemize
+Chosing an abstraction commits the solution to a single distribution, or
+ family of distributions
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+Otherwise, an additional abstraction layer would need to be developed to
+ allow the solution to target multiple different bootloader management back-ends.
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+The bootloader abstractions today represent the historical state of boot
+ loader support for Linux: multiple divergent implementations and formats
+ with some common aspects.
+ Persisting with this model when virtually all supported architectures have
+ now moved to a single, common bootloader implementation ties the project
+ to unhelpful and unnecessary historical detail.
+\end_layout
+
 \begin_layout Section
 Existing solutions
 \end_layout
@@ -4946,6 +5331,56 @@ status collapsed
 \begin_layout Plain Layout
 
 https://www.gnu.org/software/grub/manual/multiboot/multiboot.html
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Bibliography
+\begin_inset CommandInset bibitem
+LatexCommand bibitem
+key "osprober"
+
+\end_inset
+
+Debian os-prober
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset Flex URL
+status collapsed
+
+\begin_layout Plain Layout
+
+https://joeyh.name/code/os-prober/
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Bibliography
+\begin_inset CommandInset bibitem
+LatexCommand bibitem
+key "valgrind"
+
+\end_inset
+
+Valgrind instrumentation framework
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset Flex URL
+status collapsed
+
+\begin_layout Plain Layout
+
+http://valgrind.org/
 \end_layout
 
 \end_inset
