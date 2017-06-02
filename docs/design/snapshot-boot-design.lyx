@@ -3047,14 +3047,6 @@ Non-standard terminal interaction
 \end_deeper
 \end_deeper
 \begin_layout Enumerate
-Re-licensing of LVM2 components may be required as 
-\family typewriter
-Grub2
-\family default
- is released under the GPLv3 license.
-\end_layout
-
-\begin_layout Enumerate
 It is unclear how the build for the combined solution would work.
  Currently the modules linked into grub2 (either into the core image, or
  as separate loadable modules), are built from a common source tree.
