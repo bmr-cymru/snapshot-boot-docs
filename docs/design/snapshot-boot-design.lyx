@@ -1734,6 +1734,12 @@ r implementations.
 \end_layout
 
 \begin_layout Subsection
+\begin_inset CommandInset label
+LatexCommand label
+name "subsec:Bootloader-abstractions"
+
+\end_inset
+
 Bootloader abstractions
 \end_layout
 
