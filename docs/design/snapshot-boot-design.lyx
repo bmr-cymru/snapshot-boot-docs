@@ -3638,6 +3638,130 @@ Stratis
  
 \end_layout
 
+\begin_layout Part
+Solution overview
+\end_layout
+
+\begin_layout Section
+Introduction
+\end_layout
+
+\begin_layout Standard
+Initial efforts will focus on the 
+\family typewriter
+x86_64
+\family default
+ platform and current 
+\noun on
+Red Hat Enterprise Linux 7
+\noun default
+ and 
+\noun on
+Fedora
+\noun default
+ releases, since these include support for BLS.
+ 
+\end_layout
+
+\begin_layout Standard
+It is expected that additional architectures and distributions can be addressed
+ with relatively little effort at a later time
+\begin_inset Foot
+status collapsed
+
+\begin_layout Plain Layout
+In particular, the 
+\family typewriter
+grub2
+\family default
+ bootloader is not currently used for 
+\noun on
+IBM z Systems
+\noun default
+ running 
+\noun on
+Red Hat
+\noun default
+ operating systems: it may be necessary to render Boot Manager generated
+ BLS snippets into the native 
+\family typewriter
+zipl
+\family default
+ configuration format.
+ 
+\end_layout
+
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+A number of steps can be taken to solve the problems discussed in this document
+ at this time; these may be implemented in an iterative manner, building
+ on the results of each successive unit of work (with work proceeding in
+ parallel on independent components where possible).
+\end_layout
+
+\begin_layout Enumerate
+Document use of 
+\family typewriter
+root=
+\family default
+ and 
+\family typewriter
+rd.lvm.lv=
+\family default
+ to boot from snapshot volumes
+\end_layout
+
+\begin_deeper
+\begin_layout Enumerate
+Address dracut support for thin-provisioned snapshots
+\begin_inset CommandInset citation
+LatexCommand cite
+key "dracutpr"
+
+\end_inset
+
+.
+\end_layout
+
+\end_deeper
+\begin_layout Enumerate
+Provide tooling to create and manage instances of bootable snapshots, and
+ to integrate these with the existing bootloader menu system or boot-time
+ display manager.
+\end_layout
+
+\begin_layout Enumerate
+Enable additional auxiliary file system snapshots to be associated with
+ a bootable environment, to be automatically mounted in place of the origin
+ file systems at boot time.
+\end_layout
+
+\begin_layout Enumerate
+Provide a higher level snapshot management tool that handles the low-level
+ aspects of snapshot creation and removal, as well as the creation and removal
+ of corresponding bootloader entries.
+\end_layout
+
+\begin_layout Enumerate
+Provide features to enable the management of snapshot life cycles, expiring
+ and removing snapshots over time according to administrator controlled
+ policy.
+\end_layout
+
+\begin_layout Enumerate
+Allow snapshots of multiple volumes to be taken simultaneously, permitting
+ a coherent snapshot of system state to be created.
+\end_layout
+
+\begin_layout Enumerate
+Allow familiar operations on files and file systems contained within snapshots
+ to be carried out from the running system.
+\end_layout
+
 \begin_layout Section
 Requirements
 \end_layout
@@ -3923,130 +4047,6 @@ key "libguestfs"
  performing mounts of snapshot volumes, the Snapshot Manager may choose
  to create new, temporary read-only or read-write snapshots in order to
  satisfy this requirement.
-\end_layout
-
-\begin_layout Part
-Solution overview
-\end_layout
-
-\begin_layout Section
-Introduction
-\end_layout
-
-\begin_layout Standard
-Initial efforts will focus on the 
-\family typewriter
-x86_64
-\family default
- platform and current 
-\noun on
-Red Hat Enterprise Linux 7
-\noun default
- and 
-\noun on
-Fedora
-\noun default
- releases, since these include support for BLS.
- 
-\end_layout
-
-\begin_layout Standard
-It is expected that additional architectures and distributions can be addressed
- with relatively little effort at a later time
-\begin_inset Foot
-status collapsed
-
-\begin_layout Plain Layout
-In particular, the 
-\family typewriter
-grub2
-\family default
- bootloader is not currently used for 
-\noun on
-IBM z Systems
-\noun default
- running 
-\noun on
-Red Hat
-\noun default
- operating systems: it may be necessary to render Boot Manager generated
- BLS snippets into the native 
-\family typewriter
-zipl
-\family default
- configuration format.
- 
-\end_layout
-
-\end_inset
-
-.
-\end_layout
-
-\begin_layout Standard
-A number of steps can be taken to solve the problems discussed in this document
- at this time; these may be implemented in an iterative manner, building
- on the results of each successive unit of work (with work proceeding in
- parallel on independent components where possible).
-\end_layout
-
-\begin_layout Enumerate
-Document use of 
-\family typewriter
-root=
-\family default
- and 
-\family typewriter
-rd.lvm.lv=
-\family default
- to boot from snapshot volumes
-\end_layout
-
-\begin_deeper
-\begin_layout Enumerate
-Address dracut support for thin-provisioned snapshots
-\begin_inset CommandInset citation
-LatexCommand cite
-key "dracutpr"
-
-\end_inset
-
-.
-\end_layout
-
-\end_deeper
-\begin_layout Enumerate
-Provide tooling to create and manage instances of bootable snapshots, and
- to integrate these with the existing bootloader menu system or boot-time
- display manager.
-\end_layout
-
-\begin_layout Enumerate
-Enable additional auxiliary file system snapshots to be associated with
- a bootable environment, to be automatically mounted in place of the origin
- file systems at boot time.
-\end_layout
-
-\begin_layout Enumerate
-Provide a higher level snapshot management tool that handles the low-level
- aspects of snapshot creation and removal, as well as the creation and removal
- of corresponding bootloader entries.
-\end_layout
-
-\begin_layout Enumerate
-Provide features to enable the management of snapshot life cycles, expiring
- and removing snapshots over time according to administrator controlled
- policy.
-\end_layout
-
-\begin_layout Enumerate
-Allow snapshots of multiple volumes to be taken simultaneously, permitting
- a coherent snapshot of system state to be created.
-\end_layout
-
-\begin_layout Enumerate
-Allow familiar operations on files and file systems contained within snapshots
- to be carried out from the running system.
 \end_layout
 
 \begin_layout Section
