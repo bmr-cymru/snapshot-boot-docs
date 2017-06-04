@@ -1572,8 +1572,8 @@ Discussions with the original authors of Plymouth indicate that there is
  no interest in extending the interaction capabilities of the tool at this
  time: avoiding complexities such as internationalisation and font configuration
  during this phase of boot form part of the design goals of Plymouth and
- there is active hostility towards enhancing this mechanism to support more
- complex interaction.
+ there is a level of resistance towards enhancing this mechanism to support
+ more complex interaction.
 \end_layout
 
 \begin_layout Subsection
