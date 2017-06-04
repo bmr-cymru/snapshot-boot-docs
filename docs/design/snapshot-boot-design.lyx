@@ -775,8 +775,8 @@ Once tooling has been established to allow bootloader entries for snapshots
 \end_layout
 
 \begin_layout Standard
-This may be done either by integrating the boot manager with the various
- tools responsible for snapshot management (
+This may be done either by integrating management of boot configuration
+ with the various tools responsible for snapshot management (
 \family typewriter
 btrfs(8)
 \family default
@@ -790,7 +790,7 @@ lvremove(8)
 \family default
  etc.), or by creating a new tool that will perform the snapshot operation
  itself, using the appropriate tool for the type of volume being operated
- upon, before calling into the boot manager to update bootloader configuration
+ upon, before calling a tool to update bootloader configuration
 \end_layout
 
 \begin_layout Subsubsection
