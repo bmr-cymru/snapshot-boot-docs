@@ -701,97 +701,10 @@ It is expected that the core and additional goals can be delivered as a
  on time.
 \end_layout
 
-\begin_layout Subsubsection
-Goal: enable use of snapshot boot capability for advanced users
-\end_layout
-
 \begin_layout Standard
-The capability to boot into a selected snapshot of the root file system
- already exists but is poorly documented and not widely known.
- In the shortest possible term this can be improved by taking simple steps
- to raise awareness of this mechanism and to assist users in successfully
- creating manual configurations.
-\end_layout
-
-\begin_layout Subsubsection
-Proposal: document kernel command line parameters for booting snapshots
-\end_layout
-
-\begin_layout Standard
-By explicitly documenting the ability to boot into a snapshot of the root
- file system, in product content, tool documentation, and elsewhere, the
- functionality can be made available to a wider audience with minimal effort.
- This will also create additional interest in the type of higher-level managemen
-t tools we hope to introduce as part of this work.
-\end_layout
-
-\begin_layout Standard
-Although this is not a configuration method that we wish to promote, or
- to advise users to deploy, not documenting it at all seems incomplete,
- and inconsistent with other aspects of system documentation (for instance,
- the 
-\begin_inset Quotes eld
-\end_inset
-
-
-\family typewriter
-kexec
-\family default
-
-\begin_inset Quotes erd
-\end_inset
-
- facility, which is fully documented although we only support, and encourage
- users to configure it, via the 
-\begin_inset Quotes eld
-\end_inset
-
-
-\family typewriter
-kdump
-\family default
-
-\begin_inset Quotes erd
-\end_inset
-
- tools, or the 
-\begin_inset Quotes eld
-\end_inset
-
-
-\family typewriter
-iptables
-\family default
-
-\begin_inset Quotes erd
-\end_inset
-
- firewall, which we strongly encourage users to configure via higher-level
- mechanisms such as 
-\begin_inset Quotes eld
-\end_inset
-
-
-\family typewriter
-system-config-firewall
-\family default
-
-\begin_inset Quotes erd
-\end_inset
-
- and 
-\begin_inset Quotes eld
-\end_inset
-
-
-\family typewriter
-firewalld
-\family default
-
-\begin_inset Quotes erd
-\end_inset
-
-).
+A minor preqrequisite to this work is to document the usage of the existing
+ options that enable booting of LVM2 snapshots using dracut that the tooling
+ will build upon.
 \end_layout
 
 \begin_layout Subsubsection
