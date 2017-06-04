@@ -973,6 +973,12 @@ lity and value.
 \end_layout
 
 \begin_layout Subsubsection
+\begin_inset CommandInset label
+LatexCommand label
+name "subsec:Goal:-Simplify-management"
+
+\end_inset
+
 Goal: Simplify management of large numbers of snapshots
 \end_layout
 
@@ -2672,6 +2678,19 @@ Addition of a simple, free text tagging mechanism to support grouping, filtering
 Amendment of the suggested configuration file naming recommendation to include
  a free text discriminator field to allow snapshot entries to be given a
  unique name.
+\end_layout
+
+\begin_layout Standard
+These changes (and bootloader support to make use of them) will improve
+ the user experience when managing large numbers of bootable snapshot instances
+ (see 
+\begin_inset CommandInset ref
+LatexCommand vref
+reference "subsec:Goal:-Simplify-management"
+
+\end_inset
+
+).
 \end_layout
 
 \begin_layout Standard
