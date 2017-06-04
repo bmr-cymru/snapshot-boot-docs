@@ -3008,7 +3008,7 @@ grub2
 \begin_layout Enumerate
 Requires creation of a compatibility layer to allow LVM2 library code to
  be compiled and linked into both the usual ELF DSO used by applications
- on the running system, as well as and appropriate module for the 
+ on the running system, as well as an appropriate module for the 
 \family typewriter
 grub2
 \family default
