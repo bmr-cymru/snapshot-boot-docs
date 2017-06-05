@@ -976,6 +976,11 @@ Once the snapshot boot mechanism and snapshot management tools are established
 lity and value.
 \end_layout
 
+\begin_layout Standard
+Further analysis and development of these features will take place in a
+ separate document.
+\end_layout
+
 \begin_layout Subsubsection
 \begin_inset CommandInset label
 LatexCommand label
