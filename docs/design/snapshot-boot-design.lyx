@@ -4283,6 +4283,16 @@ ding boot entry that includes the necessary file system substitution if
 \end_layout
 
 \begin_layout Subsection
+Future extensions
+\end_layout
+
+\begin_layout Standard
+Extensions beyond the basic ability to boot into snapshots of the root file
+ system and auxiliary file systems will be explored in detail in a separate
+ document: key features of these proposals are documented here for reference.
+\end_layout
+
+\begin_layout Subsubsection
 Provide policy controlled tools for snapshot life cycle management
 \end_layout
 
@@ -4299,7 +4309,7 @@ By providing hooks that the administrator, or other applications can use
  to modify policy actions the flexibility of these mechanisms can be increased.
 \end_layout
 
-\begin_layout Subsection
+\begin_layout Subsubsection
 \begin_inset CommandInset label
 LatexCommand label
 name "subsec:Proposal:file-ops-1"
@@ -4341,6 +4351,13 @@ diff compare file content between the snapshot and file system line-by-line.
 
 \begin_layout Description
 exec Execute the specified command in the snapshot name space.
+\end_layout
+
+\begin_layout Standard
+Although each of these operations may be implemented manually by a sufficiently
+ knowlegeable administrator, providing a simple command interface to perform
+ these complex, multi-step operations greatly eases their use and makes
+ this powerful functionality available to a larger audience.
 \end_layout
 
 \begin_layout Part
