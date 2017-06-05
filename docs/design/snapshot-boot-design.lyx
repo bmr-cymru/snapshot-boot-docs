@@ -3603,6 +3603,15 @@ Deborah is concerned that a file system located on an LVM2 logical volume
  She would like to carry out a check, using fsck and application specific
  tools but the application using the volume is currently in use and downtime
  will incur costs.
+ Deborah decides to use a temporary snapshot to carry out the checks (Use
+ case 
+\begin_inset CommandInset ref
+LatexCommand vref
+reference "enu:Creation-of-a-const-check"
+
+\end_inset
+
+)
 \end_layout
 
 \begin_layout Enumerate
@@ -3632,6 +3641,15 @@ Deborah's manager tells her that the most recent scheduled backup for an
  a backup as soon as possible.
  Since the volume is currently in use, Deborah wants to take the backup
  with the least disruption possible.
+ She decides to use a snapshot to create a consistent on-disk image for
+ backup, without interfering with the live volume (Use case 
+\begin_inset CommandInset ref
+LatexCommand vref
+reference "enu:Creation-of-a-backup-media"
+
+\end_inset
+
+).
 \end_layout
 
 \begin_layout Enumerate
@@ -3660,6 +3678,15 @@ Tom is working with a large batch application developed by another team
  that files could not be created, but checks at this time indicate that
  plenty of space is available and that write permissions and other configuration
  are correct.
+ To try to catch the activity that is causing the problem Tom decides to
+ create frequent snapshots for inspection (Use case 
+\begin_inset CommandInset ref
+LatexCommand vref
+reference "enu:Very-frequent-snapshots"
+
+\end_inset
+
+).
 \end_layout
 
 \begin_layout Enumerate
@@ -3719,7 +3746,10 @@ dnf
 .
  In case there is a problem during the update process she would like to
  have a backup of the system state before carrying on.
- Additionally, once the update has been applied and tested she would like
+\end_layout
+
+\begin_layout Standard
+Additionally, once the update has been applied and tested she would like
  to create an image of the current state for reference, and in case there
  is a need to revert to it at a later time.
 \end_layout
@@ -3727,7 +3757,14 @@ dnf
 \begin_layout Standard
 Because the backup system will take several hours to create a full backup
  of the system for each of these steps, Deborah decides to use snapshots
- instead.
+ instead (Use case 
+\begin_inset CommandInset ref
+LatexCommand vref
+reference "enu:Before-and-after-snapshots-of"
+
+\end_inset
+
+).
 \end_layout
 
 \begin_layout Enumerate
@@ -3777,6 +3814,125 @@ Deborah deletes the first snapshot and creates a new snapshot to include
 
 \begin_layout Enumerate
 Deborah keeps both of the remaining snapshots for future reference.
+\end_layout
+
+\begin_layout Subsubsection
+Testing updates
+\end_layout
+
+\begin_layout Standard
+Derek sees a notification that updates are available for his 
+\noun on
+Fedora
+\noun default
+ system.
+ The update manager suggests rebooting to apply updates.
+ Tom decides that he will use a snapshot to test the update before applying
+ it to his system's root file system (Use case 
+\begin_inset CommandInset ref
+LatexCommand vref
+reference "enu:Creation-of-temporary"
+
+\end_inset
+
+ and boot use cases 
+\begin_inset CommandInset ref
+LatexCommand vref
+reference "enu:Booting-into-reboot-apply"
+
+\end_inset
+
+and 
+\begin_inset CommandInset ref
+LatexCommand vref
+reference "enu:Boot-To-test-updates"
+
+\end_inset
+
+).
+\end_layout
+
+\begin_layout Enumerate
+Derek identifies the logical volume backing the root file system and uses
+ the Snapshot Manager to create a new snapshot and corresponding boot configurat
+ion.
+\end_layout
+
+\begin_layout Enumerate
+Derek reboots the system and selects the snapshot environment from the choices
+ presented in the boot menu.
+\end_layout
+
+\begin_layout Enumerate
+The software update begins and applies changes to the snapshot volume.
+ Once the updates are complete the system continues to boot to the normal
+ environment.
+\end_layout
+
+\begin_layout Enumerate
+Derek logs in and begins checking the results of the software update.
+ He soon finds that his favorite application, 
+\noun on
+Libre Office
+\noun default
+, is not working correctly following the update: as Derek needs to use the
+ program, he decides to revert to the old configuration and re-attempt the
+ update at a later time.
+\end_layout
+
+\begin_layout Enumerate
+Derek reboots the system and selects the boot menu entry for the system
+ the snapshot was created from.
+\end_layout
+
+\begin_layout Enumerate
+Derek uses the Snapshot Manager to delete the temporary snapshot and continues
+ with his work.
+\end_layout
+
+\begin_layout Subsubsection
+Creating stable testing images
+\end_layout
+
+\begin_layout Standard
+Clive needs to test an update to Red Hat Enterprise Linux in a variety of
+ standardised configurations.
+ Each configuration represents a particular customisation of the operating
+ system using the provided administrative tools.
+ To save time on each configuration, Derek suggests that Clive manually
+ installs a base system and then creates read-write snapshots for each separate
+ configuration to be tested.
+ The tests can then be run automatically against the snapshots with changes
+ made as required.
+\end_layout
+
+\begin_layout Enumerate
+Clive creates a new virtual machine using a thin-provisioned LVM2 logical
+ volume
+\end_layout
+
+\begin_layout Enumerate
+He boots the Anaconda installer using a kickstart configuration and installs
+ the OS to the device
+\end_layout
+
+\begin_layout Enumerate
+When the installation completes he shuts the virtual machine down.
+\end_layout
+
+\begin_layout Enumerate
+Clive uses the Snapshot Manager to create several snapshots: one for each
+ test scenario.
+\end_layout
+
+\begin_layout Enumerate
+Clive boots each snapshot in turn, running a script to apply the necessary
+ changes.
+\end_layout
+
+\begin_layout Enumerate
+Once the images have been created, Clive creates a new snapshot of each
+ as a new baseline image.
 \end_layout
 
 \begin_layout Subsection
