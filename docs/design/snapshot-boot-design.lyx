@@ -3458,123 +3458,205 @@ Solution overview
 \end_layout
 
 \begin_layout Section
-Introduction
+User stories
+\end_layout
+
+\begin_layout Subsection
+Snapshot Manager
+\end_layout
+
+\begin_layout Subsubsection
+Consistency checking
 \end_layout
 
 \begin_layout Standard
-Initial efforts will focus on the 
+Deborah is concerned that a file system located on an LVM2 logical volume
+ may contain data inconsistencies.
+ She would like to carry out a check, using fsck and application specific
+ tools but the application using the volume is currently in use and downtime
+ will incur costs.
+\end_layout
+
+\begin_layout Enumerate
+Debora identifies the logical volume by name, and uses the Snapshot Manager
+ to create a temporary snapshot.
+\end_layout
+
+\begin_layout Enumerate
+Using the newly created snapshot devices, Deborah runs an fsck and checks
+ the application data.
+\end_layout
+
+\begin_layout Enumerate
+No problems are found and Deborah issues a Snapshot Manager command to delete
+ the snapshot.
+\end_layout
+
+\begin_layout Subsubsection
+Point-in-time backups
+\end_layout
+
+\begin_layout Standard
+Deborah's manager tells her that the most recent scheduled backup for an
+ important volume has failed.
+ Data has not been backed up for 24 hours and the manager is concerned that
+ an outage could result in significant data loss and instructs her to create
+ a backup as soon as possible.
+ Since the volume is currently in use, Deborah wants to take the backup
+ with the least disruption possible.
+\end_layout
+
+\begin_layout Enumerate
+Debora identifies the logical volume by name, and uses the Snapshot Manager
+ to create a new snapshot
+\end_layout
+
+\begin_layout Enumerate
+Deborah configures the backup tools to read data from the snapshot instead
+ of the live volume and starts the backup.
+\end_layout
+
+\begin_layout Enumerate
+Once the backup has completed successfully Deborah instructs the snapshot
+ manager to delete the snapshot.
+\end_layout
+
+\begin_layout Subsubsection
+Frequent snapshots
+\end_layout
+
+\begin_layout Standard
+Tom is working with a large batch application developed by another team
+ which creates and removes a large number of files when running.
+ While processing data the application sometimes logs an error indicating
+ that files could not be created, but checks at this time indicate that
+ plenty of space is available and that write permissions and other configuration
+ are correct.
+\end_layout
+
+\begin_layout Enumerate
+Tom decides to use snapshots to try to investigate further.
+\end_layout
+
+\begin_layout Enumerate
+He identifies the name of the affected logical volume and configures the
+ Snapshot Manager.
+\end_layout
+
+\begin_layout Enumerate
+He sets up a very frequent schedule of snapshots on the affected volume
+ creating one snapshot every minute and allows the application to run.
+\end_layout
+
+\begin_layout Enumerate
+Using the 
 \family typewriter
-x86_64
+df
 \family default
- platform and current 
-\noun on
-Red Hat Enterprise Linux 7
-\noun default
  and 
-\noun on
-Fedora
-\noun default
- releases, since these include support for BLS.
- 
+\family typewriter
+diff
+\family default
+ commands of the Snapshot Manager he inspects the snapshots as they are
+ created.
+\end_layout
+
+\begin_layout Enumerate
+In one snapshot the 
+\family typewriter
+df
+\family default
+ command reports a sudden jump in file system usage.
+\end_layout
+
+\begin_layout Enumerate
+By inspecting the content of the volume at this time, using the Snapshot
+ Manager, Tom determines that a large number of temporary files have been
+ created, filling the file system and preventing new file creation.
+\end_layout
+
+\begin_layout Enumerate
+He reports this to the application team who investigate and provide a fix.
+\end_layout
+
+\begin_layout Subsubsection
+Before-and-after snapshots
 \end_layout
 
 \begin_layout Standard
-It is expected that additional architectures and distributions can be addressed
- with relatively little effort at a later time
-\begin_inset Foot
-status collapsed
-
-\begin_layout Plain Layout
-In particular, the 
+Deborah is carrying out a system update using 
 \family typewriter
-grub2
+dnf
 \family default
- bootloader is not currently used for 
-\noun on
-IBM z Systems
-\noun default
- running 
-\noun on
-Red Hat
-\noun default
- operating systems: it may be necessary to render Boot Manager generated
- BLS snippets into the native 
-\family typewriter
-zipl
-\family default
- configuration format.
- 
-\end_layout
-
-\end_inset
-
 .
+ In case there is a problem during the update process she would like to
+ have a backup of the system state before carrying on.
+ Additionally, once the update has been applied and tested she would like
+ to create an image of the current state for reference, and in case there
+ is a need to revert to it at a later time.
 \end_layout
 
 \begin_layout Standard
-A number of steps can be taken to solve the problems discussed in this document
- at this time; these may be implemented in an iterative manner, building
- on the results of each successive unit of work (with work proceeding in
- parallel on independent components where possible).
+Because the backup system will take several hours to create a full backup
+ of the system for each of these steps, Deborah decides to use snapshots
+ instead.
 \end_layout
 
 \begin_layout Enumerate
-Document use of 
+Deborah identifies the volumes on the system that contain the software to
+ be updated.
+\end_layout
+
+\begin_layout Enumerate
+She uses the Snapshot Manager to create a snapshot of these volumes at the
+ same point in time.
+\end_layout
+
+\begin_layout Enumerate
+Deborah starts the update process using the 
 \family typewriter
-root=
+dnf
 \family default
- and 
+ command.
+\end_layout
+
+\begin_layout Enumerate
+Once the backup process has completed Deborah instructs the Snapshot Manager
+ to create a second snapshot for the system volumes.
+\end_layout
+
+\begin_layout Enumerate
+Deborah inspects the system following the update, and identifies that some
+ configuration files were not updated
+\end_layout
+
+\begin_layout Enumerate
+Deborah reviews the 
 \family typewriter
-rd.lvm.lv=
+.rpmnew
 \family default
- to boot from snapshot volumes
-\end_layout
-
-\begin_deeper
-\begin_layout Enumerate
-Address dracut support for thin-provisioned snapshots
-\begin_inset CommandInset citation
-LatexCommand cite
-key "dracutpr"
-
-\end_inset
-
-.
-\end_layout
-
-\end_deeper
-\begin_layout Enumerate
-Provide tooling to create and manage instances of bootable snapshots, and
- to integrate these with the existing bootloader menu system or boot-time
- display manager.
+ files and merges them into the system configuration.
 \end_layout
 
 \begin_layout Enumerate
-Enable additional auxiliary file system snapshots to be associated with
- a bootable environment, to be automatically mounted in place of the origin
- file systems at boot time.
+Deborah completes the check of the system and identifies no further problems.
 \end_layout
 
 \begin_layout Enumerate
-Provide a higher level snapshot management tool that handles the low-level
- aspects of snapshot creation and removal, as well as the creation and removal
- of corresponding bootloader entries.
+Deborah deletes the first snapshot and creates a new snapshot to include
+ the configuration changes.
 \end_layout
 
 \begin_layout Enumerate
-Provide features to enable the management of snapshot life cycles, expiring
- and removing snapshots over time according to administrator controlled
- policy.
+Deborah keeps both of the remaining snapshots for future reference.
 \end_layout
 
-\begin_layout Enumerate
-Allow snapshots of multiple volumes to be taken simultaneously, permitting
- a coherent snapshot of system state to be created.
+\begin_layout Subsection
+File system substitution
 \end_layout
 
-\begin_layout Enumerate
-Allow familiar operations on files and file systems contained within snapshots
- to be carried out from the running system.
+\begin_layout Subsection
+Boot Manager
 \end_layout
 
 \begin_layout Section
@@ -4135,6 +4217,126 @@ exec Execute the specified command in the snapshot name space.
 
 \begin_layout Part
 Implementation
+\end_layout
+
+\begin_layout Section
+Introduction
+\end_layout
+
+\begin_layout Standard
+Initial efforts will focus on the 
+\family typewriter
+x86_64
+\family default
+ platform and current 
+\noun on
+Red Hat Enterprise Linux 7
+\noun default
+ and 
+\noun on
+Fedora
+\noun default
+ releases, since these include support for BLS.
+ 
+\end_layout
+
+\begin_layout Standard
+It is expected that additional architectures and distributions can be addressed
+ with relatively little effort at a later time
+\begin_inset Foot
+status collapsed
+
+\begin_layout Plain Layout
+In particular, the 
+\family typewriter
+grub2
+\family default
+ bootloader is not currently used for 
+\noun on
+IBM z Systems
+\noun default
+ running 
+\noun on
+Red Hat
+\noun default
+ operating systems: it may be necessary to render Boot Manager generated
+ BLS snippets into the native 
+\family typewriter
+zipl
+\family default
+ configuration format.
+ 
+\end_layout
+
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+A number of steps can be taken to solve the problems discussed in this document
+ at this time; these may be implemented in an iterative manner, building
+ on the results of each successive unit of work (with work proceeding in
+ parallel on independent components where possible).
+\end_layout
+
+\begin_layout Enumerate
+Document use of 
+\family typewriter
+root=
+\family default
+ and 
+\family typewriter
+rd.lvm.lv=
+\family default
+ to boot from snapshot volumes
+\end_layout
+
+\begin_deeper
+\begin_layout Enumerate
+Address dracut support for thin-provisioned snapshots
+\begin_inset CommandInset citation
+LatexCommand cite
+key "dracutpr"
+
+\end_inset
+
+.
+\end_layout
+
+\end_deeper
+\begin_layout Enumerate
+Provide tooling to create and manage instances of bootable snapshots, and
+ to integrate these with the existing bootloader menu system or boot-time
+ display manager.
+\end_layout
+
+\begin_layout Enumerate
+Enable additional auxiliary file system snapshots to be associated with
+ a bootable environment, to be automatically mounted in place of the origin
+ file systems at boot time.
+\end_layout
+
+\begin_layout Enumerate
+Provide a higher level snapshot management tool that handles the low-level
+ aspects of snapshot creation and removal, as well as the creation and removal
+ of corresponding bootloader entries.
+\end_layout
+
+\begin_layout Enumerate
+Provide features to enable the management of snapshot life cycles, expiring
+ and removing snapshots over time according to administrator controlled
+ policy.
+\end_layout
+
+\begin_layout Enumerate
+Allow snapshots of multiple volumes to be taken simultaneously, permitting
+ a coherent snapshot of system state to be created.
+\end_layout
+
+\begin_layout Enumerate
+Allow familiar operations on files and file systems contained within snapshots
+ to be carried out from the running system.
 \end_layout
 
 \begin_layout Section
