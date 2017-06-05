@@ -584,7 +584,11 @@ A bug currently exists in
 \family typewriter
 dracut
 \family default
- (dracut-
+ (
+\family typewriter
+dracut
+\family default
+-
 \family typewriter
 044
 \family default
