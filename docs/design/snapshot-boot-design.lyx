@@ -3569,6 +3569,26 @@ Solution overview
 User stories
 \end_layout
 
+\begin_layout Description
+Deborah is a system administrator responsible for managing a number of Red
+ Hat Enteprise Linux servers.
+\end_layout
+
+\begin_layout Description
+Tom works in the DevOps team, developing and maintaining systems used by
+ numerous teams for testing, staging, and production.
+\end_layout
+
+\begin_layout Description
+Derek is a manager with a technical background who runs Fedora on his desktop
+ system.
+\end_layout
+
+\begin_layout Description
+Clive is a quality assurance engineer responsible for testing updates to
+ the base operating system.
+\end_layout
+
 \begin_layout Subsection
 Snapshot Manager
 \end_layout
