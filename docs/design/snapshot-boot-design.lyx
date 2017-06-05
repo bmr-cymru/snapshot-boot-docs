@@ -729,45 +729,6 @@ With appropriate tools these powerful features would be accessible to a
 \end_layout
 
 \begin_layout Subsubsection
-Proposal: Make snapshots accessible from the boot menu
-\end_layout
-
-\begin_layout Standard
-The bootloader menu provides a familiar mechanism for selecting among the
- available bootable environments on the system.
- By adding the ability to automatically create and manage boot entries for
- snapshot volumes, without the need for very detailed knowledge of either
- boot loader, kernel command line, or system configuration, the feature
- is made accessible to the widest audience of system administrators and
- users.
-\end_layout
-
-\begin_layout Standard
-Using well-known technology such as the 
-\family typewriter
-grub
-\family default
- menu maximises the administrator's familiarity with the new feature and
- enables the use of existing skills to further customise the configuration
- (for example, interactive edits to the bootloader entry).
-\end_layout
-
-\begin_layout Standard
-By creating tooling to exploit existing features of the operating system
- to enable easy generation of bootloader configuration for snapshots created
- using any technology (
-\family typewriter
-LVM2, Stratis
-\family default
- or 
-\family typewriter
-BTRFS
-\family default
-) the need to create additional, LVM2-specific, tooling is avoided and the
- maintenance burden is spread over a greater number of components.
-\end_layout
-
-\begin_layout Subsubsection
 Goal: Automate the management of boot entries for snapshots
 \end_layout
 
@@ -794,68 +755,7 @@ lvremove(8)
 \family default
  etc.), or by creating a new tool that will perform the snapshot operation
  itself, using the appropriate tool for the type of volume being operated
- upon, before calling a tool to update bootloader configuration
-\end_layout
-
-\begin_layout Subsubsection
-Proposal: Develop an integrated snapshot management tool
-\end_layout
-
-\begin_layout Standard
-Since there are multiple snapshot mechanisms (
-\family typewriter
-LVM2
-\family default
-, 
-\family typewriter
-BTRFS
-\family default
- and potentially 
-\family typewriter
-Stratis
-\family default
-), and since adding support for updating boot manager configuration would
- require changes to the tools for each of these mechanisms, it is proposed
- that a new, higher-level snapshot management tool be created to perform
- the task of creating and removing snapshots of the required type, and updating
- the boot configuration as appropriate.
-\end_layout
-
-\begin_layout Standard
-As well as avoiding the need to modify the tools of every snapshot implementatio
-n this creates a consistent and uniform experience for users, independent
- of the particular snapshot technology in use.
- This benefits users migrating from one technology to another (for example,
- from a distribution using 
-\family typewriter
-BTRFS
-\family default
- for the root file system to one using 
-\family typewriter
-LVM2
-\family default
-, or a move from classic 
-\family typewriter
-LVM2
-\family default
- snapshots to 
-\family typewriter
-LVM2
-\family default
- using thin provisioning), allows the creation of consolidated documentation
- and other learning materials, and simplifies the extension of the feature
- to additional back-end mechanisms (for example, 
-\noun on
-Stratis
-\noun default
-).
-\end_layout
-
-\begin_layout Standard
-This addition of a new component for snapshot management creates an integration
- point for further enhancements, for example adding policies to control
- various aspects of snapshot maintenance, and interfaces to provide monitoring
- and statistical information on snapshot usage.
+ upon, before calling a tool to update bootloader configuration.
 \end_layout
 
 \begin_layout Subsection
@@ -903,27 +803,6 @@ in terms of the ability to quickly recover an earlier system state, including
 \end_layout
 
 \begin_layout Subsubsection
-Proposal: introduce a mechanism for boot time file system substitution.
-\end_layout
-
-\begin_layout Standard
-A mechanism will be created to allow a list of file system mount points
- to be given for substitution with specified snapshot versions, at the time
- the system is booted.
- The syntax must extend to 
-\family typewriter
-LVM2, BTRFS
-\family default
- and 
-\family typewriter
-Stratis
-\family default
- snapshot volumes, and should allow VFS mount options to be inherited from
- the existing configuration for the mount point under substitution, or specified
- at the time of substitution.
-\end_layout
-
-\begin_layout Subsubsection
 Goal: Simplify creation of point-in-time snapshots of multiple file systems
 \end_layout
 
@@ -950,18 +829,6 @@ This is necessary in order to be able to boot the system into an actual
  system, that then requires changes to the format of files stored in other
  volumes, or an update of a system to some new internal baseline image,
  with corresponding changes to data deployed in other system volumes).
-\end_layout
-
-\begin_layout Subsubsection
-Proposal: Create multiple snapshots simultaneously as a coherent set
-\end_layout
-
-\begin_layout Standard
-The Snapshot Manager tool will allow the user to specify multiple volumes
- for which snapshots will be created simultaneously, and will create a correspon
-ding boot entry that includes the necessary file system substitution if
- the root file system is included.
- 
 \end_layout
 
 \begin_layout Subsection
@@ -1030,23 +897,6 @@ By not addressing these issues in generic features, the cost is pushed onto
 \end_layout
 
 \begin_layout Subsubsection
-Proposal: Provide policy controlled tools for snapshot life cycle management
-\end_layout
-
-\begin_layout Standard
-Once a tool exists to create and remove system snapshots and their corresponding
- boot configuration, it becomes a relatively simple step to apply policies
- to automate some aspects of that management, for example creating snapshots
- to a particular schedule, around certain events, or expiring snapshots
- by age, count or some other applicable mechanism.
-\end_layout
-
-\begin_layout Standard
-By providing hooks that the administrator, or other applications can use
- to modify policy actions the flexibility of these mechanisms can be increased.
-\end_layout
-
-\begin_layout Subsubsection
 Goal: Simplify file operations on inactive snapshot volumes
 \end_layout
 
@@ -1069,50 +919,6 @@ Providing automated mechanisms to allow these operations avoids the need
  to disrupt the system by rebooting for simple tasks, and simplifies the
  execution of these tasks on the running system by automating snapshot activatio
 n and mount operations.
-\end_layout
-
-\begin_layout Subsubsection
-\begin_inset CommandInset label
-LatexCommand label
-name "subsec:Proposal:file-ops"
-
-\end_inset
-
-Proposal: Implement familiar file operations for snapshots
-\end_layout
-
-\begin_layout Standard
-A set of operations that can be applied to snapshot volumes is proposed.
- These operations are based on familiar 
-\noun on
-UNIX
-\noun default
- command idioms and provide a means to access and inspect snapshot content
- from the system.
-\end_layout
-
-\begin_layout Description
-df report snapshot disk space usage.
-\end_layout
-
-\begin_layout Description
-du estimate snapshot file space usage.
-\end_layout
-
-\begin_layout Description
-cp Copy a file between the snapshot and the file system.
-\end_layout
-
-\begin_layout Description
-cat Concatenate snapshot file content and print to standard output.
-\end_layout
-
-\begin_layout Description
-diff compare file content between the snapshot and file system line-by-line.
-\end_layout
-
-\begin_layout Description
-exec Execute the specified command in the snapshot name space.
 \end_layout
 
 \begin_layout Section
@@ -4105,7 +3911,7 @@ It is desirable to be able to perform additional high level operations on
  snapshot volumes as proposed in 
 \begin_inset CommandInset ref
 LatexCommand vref
-reference "subsec:Proposal:file-ops"
+reference "subsec:Proposal:file-ops-1"
 
 \end_inset
 
@@ -4128,6 +3934,203 @@ key "libguestfs"
  performing mounts of snapshot volumes, the Snapshot Manager may choose
  to create new, temporary read-only or read-write snapshots in order to
  satisfy this requirement.
+\end_layout
+
+\begin_layout Section
+Proposals
+\end_layout
+
+\begin_layout Subsection
+Make snapshots accessible from the boot menu
+\end_layout
+
+\begin_layout Standard
+The bootloader menu provides a familiar mechanism for selecting among the
+ available bootable environments on the system.
+ By adding the ability to automatically create and manage boot entries for
+ snapshot volumes, without the need for very detailed knowledge of either
+ boot loader, kernel command line, or system configuration, the feature
+ is made accessible to the widest audience of system administrators and
+ users.
+\end_layout
+
+\begin_layout Standard
+Using well-known technology such as the 
+\family typewriter
+grub
+\family default
+ menu maximises the administrator's familiarity with the new feature and
+ enables the use of existing skills to further customise the configuration
+ (for example, interactive edits to the bootloader entry).
+\end_layout
+
+\begin_layout Standard
+By creating tooling to exploit existing features of the operating system
+ to enable easy generation of bootloader configuration for snapshots created
+ using any technology (
+\family typewriter
+LVM2, Stratis
+\family default
+ or 
+\family typewriter
+BTRFS
+\family default
+) the need to create additional, LVM2-specific, tooling is avoided and the
+ maintenance burden is spread over a greater number of components.
+\end_layout
+
+\begin_layout Subsection
+Develop an integrated snapshot management tool
+\end_layout
+
+\begin_layout Standard
+Since there are multiple snapshot mechanisms (
+\family typewriter
+LVM2
+\family default
+, 
+\family typewriter
+BTRFS
+\family default
+ and potentially 
+\family typewriter
+Stratis
+\family default
+), and since adding support for updating boot manager configuration would
+ require changes to the tools for each of these mechanisms, it is proposed
+ that a new, higher-level snapshot management tool be created to perform
+ the task of creating and removing snapshots of the required type, and updating
+ the boot configuration as appropriate.
+\end_layout
+
+\begin_layout Standard
+As well as avoiding the need to modify the tools of every snapshot implementatio
+n this creates a consistent and uniform experience for users, independent
+ of the particular snapshot technology in use.
+ This benefits users migrating from one technology to another (for example,
+ from a distribution using 
+\family typewriter
+BTRFS
+\family default
+ for the root file system to one using 
+\family typewriter
+LVM2
+\family default
+, or a move from classic 
+\family typewriter
+LVM2
+\family default
+ snapshots to 
+\family typewriter
+LVM2
+\family default
+ using thin provisioning), allows the creation of consolidated documentation
+ and other learning materials, and simplifies the extension of the feature
+ to additional back-end mechanisms (for example, 
+\noun on
+Stratis
+\noun default
+).
+\end_layout
+
+\begin_layout Standard
+This addition of a new component for snapshot management creates an integration
+ point for further enhancements, for example adding policies to control
+ various aspects of snapshot maintenance, and interfaces to provide monitoring
+ and statistical information on snapshot usage.
+\end_layout
+
+\begin_layout Subsection
+introduce a mechanism for boot time file system substitution.
+\end_layout
+
+\begin_layout Standard
+A mechanism will be created to allow a list of file system mount points
+ to be given for substitution with specified snapshot versions, at the time
+ the system is booted.
+ The syntax must extend to 
+\family typewriter
+LVM2, BTRFS
+\family default
+ and 
+\family typewriter
+Stratis
+\family default
+ snapshot volumes, and should allow VFS mount options to be inherited from
+ the existing configuration for the mount point under substitution, or specified
+ at the time of substitution.
+\end_layout
+
+\begin_layout Subsection
+Create multiple snapshots simultaneously as a coherent set
+\end_layout
+
+\begin_layout Standard
+The Snapshot Manager tool will allow the user to specify multiple volumes
+ for which snapshots will be created simultaneously, and will create a correspon
+ding boot entry that includes the necessary file system substitution if
+ the root file system is included.
+\end_layout
+
+\begin_layout Subsection
+Provide policy controlled tools for snapshot life cycle management
+\end_layout
+
+\begin_layout Standard
+Once a tool exists to create and remove system snapshots and their corresponding
+ boot configuration, it becomes a relatively simple step to apply policies
+ to automate some aspects of that management, for example creating snapshots
+ to a particular schedule, around certain events, or expiring snapshots
+ by age, count or some other applicable mechanism.
+\end_layout
+
+\begin_layout Standard
+By providing hooks that the administrator, or other applications can use
+ to modify policy actions the flexibility of these mechanisms can be increased.
+\end_layout
+
+\begin_layout Subsection
+\begin_inset CommandInset label
+LatexCommand label
+name "subsec:Proposal:file-ops-1"
+
+\end_inset
+
+Implement familiar file operations for inactive snapshots
+\end_layout
+
+\begin_layout Standard
+A set of operations that can be applied to snapshot volumes is proposed.
+ These operations are based on familiar 
+\noun on
+UNIX
+\noun default
+ command idioms and provide a means to access and inspect snapshot content
+ from the system.
+\end_layout
+
+\begin_layout Description
+df report snapshot disk space usage.
+\end_layout
+
+\begin_layout Description
+du estimate snapshot file space usage.
+\end_layout
+
+\begin_layout Description
+cp Copy a file between the snapshot and the file system.
+\end_layout
+
+\begin_layout Description
+cat Concatenate snapshot file content and print to standard output.
+\end_layout
+
+\begin_layout Description
+diff compare file content between the snapshot and file system line-by-line.
+\end_layout
+
+\begin_layout Description
+exec Execute the specified command in the snapshot name space.
 \end_layout
 
 \begin_layout Part
