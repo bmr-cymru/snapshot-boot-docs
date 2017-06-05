@@ -88,7 +88,7 @@
 \begin_body
 
 \begin_layout Title
-Boot-to-snapshot design v0.2
+Boot-to-snapshot design v0.3
 \end_layout
 
 \begin_layout Author
@@ -138,7 +138,7 @@ status collapsed
 \end_layout
 
 \begin_layout Date
-Last modified: 01/06/17
+Last modified: 05/06/17
 \end_layout
 
 \begin_layout Standard
