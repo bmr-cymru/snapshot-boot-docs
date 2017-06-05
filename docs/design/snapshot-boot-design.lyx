@@ -3779,6 +3779,20 @@ Requirements
 Boot Manager requirements
 \end_layout
 
+\begin_layout Standard
+The Boot Manager will be responsible for creating and deleting BLS snippets
+ corresponding to bootable snapshot instances.
+ It is the first new software deliverable for the proposed project, and
+ forms the basis of much of the functionality to be delivered in the near
+ term.
+\end_layout
+
+\begin_layout Standard
+The tool is envisaged as a command line interface and library bindings to
+ allow an administrator, or another software component to inspect and manage
+ the set of BLS boot loader entries present on the system.
+\end_layout
+
 \begin_layout Subsubsection
 Ability to create BLS compliant boot loader entries
 \end_layout
@@ -3863,6 +3877,54 @@ In order to provide comprehensive management of the snapshot boot facility
 File system substitution requirements
 \end_layout
 
+\begin_layout Standard
+The component responsible for file system substitution must accept a value
+ on the kernel command line and perform the requested mount point substitutions
+ during the boot process.
+\end_layout
+
+\begin_layout Standard
+There are two points at which the opportunity to make these changes exists:
+ (i) during early user space processing (initial ramfs), after the selection
+ and mount of the root device, but before the pivot of the system root,
+ and (ii) after the pivot, but before 
+\family typewriter
+systemd
+\family default
+ reaches the 
+\family typewriter
+local-fs
+\family default
+ target.
+\end_layout
+
+\begin_layout Standard
+To substitute file system mounts during boot it is necessary to either modify
+ the visible copy of 
+\begin_inset Quotes eld
+\end_inset
+
+
+\family typewriter
+/etc/fstab
+\family default
+
+\begin_inset Quotes erd
+\end_inset
+
+, or to modify the system mount state after local file systems have been
+ mounted.
+ Modifying the 
+\family typewriter
+fstab
+\family default
+ has the advantage that tools such as 
+\family typewriter
+mount(8)
+\family default
+ which operate on this file will behave as expected.
+\end_layout
+
 \begin_layout Subsubsection
 Accept file system substitutions on the kernel command line
 \end_layout
@@ -3901,6 +3963,16 @@ In addition to creating the required configuration during system boot, the
 
 \begin_layout Subsection
 Snapshot Manager requirements
+\end_layout
+
+\begin_layout Standard
+The snapshot manager provides a higher level mechanism for creating, removing,
+ and managing snapshots and their associated boot configuration and meta
+ data.
+ As well as providing a simplified interface to administrators, and combining
+ multiple steps into a single operation, the manager provides an abstraction
+ over the various low-level snapshot mechanisms and creates an integration
+ point which may be used to introduce further features and services.
 \end_layout
 
 \begin_layout Subsubsection
@@ -4058,77 +4130,337 @@ key "libguestfs"
  satisfy this requirement.
 \end_layout
 
+\begin_layout Part
+Implementation
+\end_layout
+
 \begin_layout Section
+Development languages
+\end_layout
+
+\begin_layout Standard
+As each component of the current proposal is an entirely new software element
+ there is considerable freedom in selecting the language used for the implementa
+tion.
+\end_layout
+
+\begin_layout Standard
+Where some components must execute in restricted environments (early user
+ space, pre-
+\family typewriter
+basic.target
+\family default
+) there may be restrictions on both specific languages and the types of
+ languages (e.g.
+ compiled vs.
+ interpreted) that can easily be supported.
+\end_layout
+
+\begin_layout Standard
+For interpreted languages, 
+\noun on
+Python
+\noun default
+ has the advantage of widespread adoption in 
+\noun on
+Red Hat
+\noun default
+ distributions, and a large and active development community.
+ Alternatives include 
+\noun on
+Perl
+\noun default
+ and 
+\noun on
+Ruby
+\noun default
+ but these have a smaller systems programming footprint in today's distributions.
+\end_layout
+
+\begin_layout Standard
+The 
+\noun on
+Go
+\noun default
+ and 
+\noun on
+Rust
+\noun default
+ languages
+\begin_inset CommandInset citation
+LatexCommand cite
+key "golang"
+
+\end_inset
+
+ 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "rustlang"
+
+\end_inset
+
+have gained popularity in recent years for systems programming and infrastructur
+e.
+ They are high-level, compiled languages heavily influenced by 
+\noun on
+C
+\noun default
+ and related languages, with the addition of features such as garbage collection
+, memory safety, type inference (
+\noun on
+Rust
+\noun default
+) and built in concurrency primitives
+\begin_inset CommandInset citation
+LatexCommand cite
+key "godesc"
+
+\end_inset
+
+.
+ While the popularity of 
+\noun on
+Rust
+\noun default
+ and 
+\noun on
+Go
+\noun default
+ seems set to increase they are still relatively young languages, and questions
+ remain over long-term maintenance and support.
+ In addition there is limited expertise in either language in the device-mapper
+ and LVM2 developer community.
+\end_layout
+
+\begin_layout Standard
+While 
+\noun on
+C 
+\noun default
+imposes additional burdens on development it is well-proven and the basis
+ for much of the software in the distribution.
+ Since the components that must be written in a compiled language are expected
+ to be relatively small it seems to be the natural choice for these parts.
+\end_layout
+
+\begin_layout Section
+Software Components
+\end_layout
+
+\begin_layout Standard
+The proposed implementation involves creating three new software components:
+\end_layout
+
+\begin_layout Enumerate
+Boot Manager
+\begin_inset CommandInset label
+LatexCommand label
+name "enu:Boot-Manager"
+
+\end_inset
+
+
+\end_layout
+
+\begin_deeper
+\begin_layout Enumerate
+A command line tool to manage snapshot boot entries
+\end_layout
+
+\begin_layout Enumerate
+Fixes to dracut required to support thin snapshots
+\end_layout
+
+\end_deeper
+\begin_layout Enumerate
+File system substitution mechanism
+\begin_inset CommandInset label
+LatexCommand label
+name "enu:File-system-subsitution"
+
+\end_inset
+
+
+\end_layout
+
+\begin_deeper
+\begin_layout Enumerate
+A software component to perform file system substitutions passed on the
+ kernel command line.
+\end_layout
+
+\begin_layout Enumerate
+Integration with the Boot Manager to allow passing of a substitution specificati
+ons to boot entries.
+\end_layout
+
+\end_deeper
+\begin_layout Enumerate
+Snapshot Manager
+\begin_inset CommandInset label
+LatexCommand label
+name "enu:Snapshot-Manager"
+
+\end_inset
+
+
+\end_layout
+
+\begin_deeper
+\begin_layout Enumerate
+A command line tool to create, remove, and manipulate snapshot volumes and
+ associated boot configuration
+\end_layout
+
+\begin_layout Enumerate
+Support for creation of snapshots of multiple volumes simultaneously.
+\end_layout
+
+\begin_layout Enumerate
+Policies to manage expiry and deletion of snapshots, based on:
+\end_layout
+
+\begin_deeper
+\begin_layout Enumerate
+Snapshot count
+\end_layout
+
+\begin_layout Enumerate
+Snapshot age
+\end_layout
+
+\begin_layout Enumerate
+Preservation tags
+\end_layout
+
+\begin_layout Enumerate
+Space consumption
+\end_layout
+
+\end_deeper
+\begin_layout Enumerate
+Support for common file operations on snapshot data.
+\end_layout
+
+\end_deeper
+\begin_layout Standard
+Initial development will focus on 
+\begin_inset CommandInset ref
+LatexCommand eqref
+reference "enu:Boot-Manager"
+
+\end_inset
+
+and 
+\begin_inset CommandInset ref
+LatexCommand eqref
+reference "enu:File-system-subsitution"
+
+\end_inset
+
+.
+ 
+\end_layout
+
+\begin_layout Subsection
 Boot Manager
 \end_layout
 
 \begin_layout Standard
-The Boot Manager will be responsible for creating and deleting BLS snippets
- corresponding to bootable snapshot instances.
- It is the first new software deliverable for the proposed project, and
- forms the basis of much of the functionality to be delivered in the near
- term.
+The Boot Manager does not need to execute during early user space, or before
+ the 
+\family typewriter
+init
+\family default
+ daemon has fully initialised the system.
+ The tools are expected to be used from one or more operating system installatio
+ns present on the system, or a similar rescue environment or live image,
+ and will have full access to the normal libraries and runtime environments
+ those operating systems provide.
 \end_layout
 
 \begin_layout Standard
-The tool is envisaged as a command line interface and library bindings to
- allow an administrator, or another software component to inspect and manage
- the set of BLS boot loader entries present on the system.
+Some initial prototyping work has been carried out in 
+\noun on
+Python
+\noun default
+ and this is a commonly used language for similar development projects in
+ 
+\noun on
+Red
+\begin_inset space ~
+\end_inset
+
+Hat
+\begin_inset space ~
+\end_inset
+
+Enterprise
+\begin_inset space ~
+\end_inset
+
+Linux
+\noun default
+ and 
+\noun on
+Fedora
+\noun default
+: considerable expertise exists among these communities that can be exploited
+ if required.
 \end_layout
 
-\begin_layout Section
+\begin_layout Subsection
 File System Substitution
 \end_layout
 
 \begin_layout Standard
-The component responsible for file system substitution must accept a value
- on the kernel command line and perform the requested mount point substitutions
- during the boot process.
-\end_layout
-
-\begin_layout Standard
-There are two points at which the opportunity to make these changes exists:
- (i) during early user space processing (initial ramfs), after the selection
- and mount of the root device, but before the pivot of the system root,
- and (ii) after the pivot, but before 
+The component responsible for substituting file system mounts according
+ to a specification passed on the command line must run during early phases
+ of system boot: either during early user space (initial ramfs), or during
+ the 
 \family typewriter
-systemd
+init
 \family default
- reaches the 
+ phase of boot, but before the system has reached the 
 \family typewriter
 local-fs
 \family default
- target.
+ or 
+\family typewriter
+basic
+\family default
+ targets.
+ This means that local file systems may not be mounted, and some libraries
+ and runtime environments may not be available.
 \end_layout
 
 \begin_layout Standard
-To substitute file system mounts during boot it is necessary to either modify
- the visible copy of 
-\begin_inset Quotes eld
-\end_inset
-
-
-\family typewriter
-/etc/fstab
-\family default
-
-\begin_inset Quotes erd
-\end_inset
-
-, or to modify the system mount state after local file systems have been
- mounted.
- Modifying the 
-\family typewriter
-fstab
-\family default
- has the advantage that tools such as 
-\family typewriter
-mount(8)
-\family default
- which operate on this file will behave as expected.
+This suggests a need for this component to be either so simple that it is
+ guaranteed to run in all of these contexts (for example, a 
+\noun on
+POSIX
+\noun default
+ shell script), or to be written in a compiled language with strict control
+ over library usage in order to produce a binary that can be executed during
+ these phases of system initialisation.
 \end_layout
 
-\begin_layout Subsection
+\begin_layout Standard
+A number of possible mechanisms exist to implement the actual substitution
+ of specified file system mounts.
+ Some testing and initial prototyping has been carried out using the bind
+ mount mechanism (
+\begin_inset CommandInset ref
+LatexCommand vref
+reference "subsec:Substituting-fstab-via"
+
+\end_inset
+
+) but this will need to be further refined and developed into a usable component.
+\end_layout
+
+\begin_layout Subsubsection
 Direct modification of 
 \family typewriter
 fstab
@@ -4177,7 +4509,13 @@ fstab
  rewritten.
 \end_layout
 
-\begin_layout Subsection
+\begin_layout Subsubsection
+\begin_inset CommandInset label
+LatexCommand label
+name "subsec:Substituting-fstab-via"
+
+\end_inset
+
 Substituting 
 \family typewriter
 fstab
@@ -4311,7 +4649,7 @@ fstab
  the event of an unclean shut-down.
 \end_layout
 
-\begin_layout Subsection
+\begin_layout Subsubsection
 Substituting individual mounts via bind mounts
 \end_layout
 
@@ -4348,336 +4686,6 @@ fstab
 \family default
  may misbehave or give confusing output if the file does not appear to match
  the current mount state.
-\end_layout
-
-\begin_layout Section
-Snapshot Manager
-\end_layout
-
-\begin_layout Standard
-The snapshot manager provides a higher level mechanism for creating, removing,
- and managing snapshots and their associated boot configuration and meta
- data.
- As well as providing a simplified interface to administrators, and combining
- multiple steps into a single operation, the manager provides an abstraction
- over the various low-level snapshot mechanisms and creates an integration
- point which may be used to introduce further features and services.
-\end_layout
-
-\begin_layout Part
-Implementation
-\end_layout
-
-\begin_layout Section
-Software Components
-\end_layout
-
-\begin_layout Standard
-The proposed implementation involves creating three new software components:
-\end_layout
-
-\begin_layout Enumerate
-Boot Manager
-\begin_inset CommandInset label
-LatexCommand label
-name "enu:Boot-Manager"
-
-\end_inset
-
-
-\end_layout
-
-\begin_deeper
-\begin_layout Enumerate
-A command line tool to manage snapshot boot entries
-\end_layout
-
-\begin_layout Enumerate
-Fixes to dracut required to support thin snapshots
-\end_layout
-
-\end_deeper
-\begin_layout Enumerate
-File system substitution mechanism
-\begin_inset CommandInset label
-LatexCommand label
-name "enu:File-system-subsitution"
-
-\end_inset
-
-
-\end_layout
-
-\begin_deeper
-\begin_layout Enumerate
-A software component to perform file system substitutions passed on the
- kernel command line.
-\end_layout
-
-\begin_layout Enumerate
-Integration with the Boot Manager to allow passing of a substitution specificati
-ons to boot entries.
-\end_layout
-
-\end_deeper
-\begin_layout Enumerate
-Snapshot Manager
-\begin_inset CommandInset label
-LatexCommand label
-name "enu:Snapshot-Manager"
-
-\end_inset
-
-
-\end_layout
-
-\begin_deeper
-\begin_layout Enumerate
-A command line tool to create, remove, and manipulate snapshot volumes and
- associated boot configuration
-\end_layout
-
-\begin_layout Enumerate
-Support for creation of snapshots of multiple volumes simultaneously.
-\end_layout
-
-\begin_layout Enumerate
-Policies to manage expiry and deletion of snapshots, based on:
-\end_layout
-
-\begin_deeper
-\begin_layout Enumerate
-Snapshot count
-\end_layout
-
-\begin_layout Enumerate
-Snapshot age
-\end_layout
-
-\begin_layout Enumerate
-Preservation tags
-\end_layout
-
-\begin_layout Enumerate
-Space consumption
-\end_layout
-
-\end_deeper
-\begin_layout Enumerate
-Support for common file operations on snapshot data.
-\end_layout
-
-\end_deeper
-\begin_layout Standard
-Initial development will focus on 
-\begin_inset CommandInset ref
-LatexCommand eqref
-reference "enu:Boot-Manager"
-
-\end_inset
-
-and 
-\begin_inset CommandInset ref
-LatexCommand eqref
-reference "enu:File-system-subsitution"
-
-\end_inset
-
-.
- 
-\end_layout
-
-\begin_layout Section
-Development languages
-\end_layout
-
-\begin_layout Standard
-As each component of the current proposal is an entirely new software element
- there is considerable freedom in selecting the language used for the implementa
-tion.
-\end_layout
-
-\begin_layout Standard
-Where some components must execute in restricted environments (early user
- space, pre-
-\family typewriter
-basic.target
-\family default
-) there may be restrictions on both specific languages and the types of
- languages (e.g.
- compiled vs.
- interpreted) that can easily be supported.
-\end_layout
-
-\begin_layout Standard
-For interpreted languages, 
-\noun on
-Python
-\noun default
- has the advantage of widespread adoption in 
-\noun on
-Red Hat
-\noun default
- distributions, and a large and active development community.
- Alternatives include 
-\noun on
-Perl
-\noun default
- and 
-\noun on
-Ruby
-\noun default
- but these have a smaller systems programming footprint in today's distributions.
-\end_layout
-
-\begin_layout Standard
-The 
-\noun on
-Go
-\noun default
- and 
-\noun on
-Rust
-\noun default
- languages
-\begin_inset CommandInset citation
-LatexCommand cite
-key "golang"
-
-\end_inset
-
- 
-\begin_inset CommandInset citation
-LatexCommand cite
-key "rustlang"
-
-\end_inset
-
-have gained popularity in recent years for systems programming and infrastructur
-e.
- They are high-level, compiled languages heavily influenced by 
-\noun on
-C
-\noun default
- and related languages, with the addition of features such as garbage collection
-, memory safety, type inference (
-\noun on
-Rust
-\noun default
-) and built in concurrency primitives
-\begin_inset CommandInset citation
-LatexCommand cite
-key "godesc"
-
-\end_inset
-
-.
- While the popularity of 
-\noun on
-Rust
-\noun default
- and 
-\noun on
-Go
-\noun default
- seems set to increase they are still relatively young languages, and questions
- remain over long-term maintenance and support.
- In addition there is limited expertise in either language in the device-mapper
- and LVM2 developer community.
-\end_layout
-
-\begin_layout Standard
-While 
-\noun on
-C 
-\noun default
-imposes additional burdens on development it is well-proven and the basis
- for much of the software in the distribution.
- Since the components that must be written in a compiled language are expected
- to be relatively small it seems to be the natural choice for these parts.
-\end_layout
-
-\begin_layout Subsection
-Boot Manager
-\end_layout
-
-\begin_layout Standard
-The Boot Manager does not need to execute during early user space, or before
- the 
-\family typewriter
-init
-\family default
- daemon has fully initialised the system.
- The tools are expected to be used from one or more operating system installatio
-ns present on the system, or a similar rescue environment or live image,
- and will have full access to the normal libraries and runtime environments
- those operating systems provide.
-\end_layout
-
-\begin_layout Standard
-Some initial prototyping work has been carried out in 
-\noun on
-Python
-\noun default
- and this is a commonly used language for similar development projects in
- 
-\noun on
-Red
-\begin_inset space ~
-\end_inset
-
-Hat
-\begin_inset space ~
-\end_inset
-
-Enterprise
-\begin_inset space ~
-\end_inset
-
-Linux
-\noun default
- and 
-\noun on
-Fedora
-\noun default
-: considerable expertise exists among these communities that can be exploited
- if required.
-\end_layout
-
-\begin_layout Subsection
-File System Substitution
-\end_layout
-
-\begin_layout Standard
-The component responsible for substituting file system mounts according
- to a specification passed on the command line must run during early phases
- of system boot: either during early user space (initial ramfs), or during
- the 
-\family typewriter
-init
-\family default
- phase of boot, but before the system has reached the 
-\family typewriter
-local-fs
-\family default
- or 
-\family typewriter
-basic
-\family default
- targets.
- This means that local file systems may not be mounted, and some libraries
- and runtime environments may not be available.
-\end_layout
-
-\begin_layout Standard
-This suggests a need for this component to be either so simple that it is
- guaranteed to run in all of these contexts (a 
-\noun on
-POSIX
-\noun default
- shell script), or to be written in a compiled language with strict control
- over library usage in order to produce a binary that can be executed during
- these phases of system initialisation.
 \end_layout
 
 \begin_layout Subsection
