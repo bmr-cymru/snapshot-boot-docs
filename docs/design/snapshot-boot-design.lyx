@@ -4157,8 +4157,8 @@ Clive boots each snapshot in turn, running a script to apply the necessary
 \end_layout
 
 \begin_layout Enumerate
-Once the images have been created, Clive creates a new snapshot of each
- as a new baseline image.
+Once the images have been created, Clive uses the Snapshot Manager to create
+ a new snapshot of each volume as a new baseline image.
 \end_layout
 
 \begin_layout Subsection
