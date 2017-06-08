@@ -3948,8 +3948,23 @@ Testing updates (success)
 
 \begin_layout Standard
 Tom has been talking to Deborah about her recent update, and would like
- to update his Red hat Enterprise Linux workstation too as new software
- updates are available.
+ to update his 
+\noun on
+Red
+\begin_inset space ~
+\end_inset
+
+hat
+\begin_inset space ~
+\end_inset
+
+Enterprise
+\begin_inset space ~
+\end_inset
+
+Linux
+\noun default
+ workstation too as new software updates are available.
 \end_layout
 
 \begin_layout Standard
@@ -3959,14 +3974,15 @@ Rather than take a snapshot of the system state to keep, as Deborah did,
 \emph on
 merging
 \emph default
- the snapshot back into the origin volume: use case 
+ the snapshot back into the origin volume), or, if there are problems, to
+ reject it and delete the snapshot volume (use case 
 \begin_inset CommandInset ref
-LatexCommand ref
+LatexCommand vref
 reference "enu:Creation-of-temporary"
 
 \end_inset
 
-), or, if there are problems, to reject it and delete the snapshot volume.
+).
 \end_layout
 
 \begin_layout Enumerate
