@@ -2690,10 +2690,16 @@ UEFI
 
 \begin_layout Standard
 These proposals have not yet been incorporated into the BLS.
- With the exception of the name space change (which although superficially
- reasonable fails to fully address the problem it seeks to solve) these
- are all improvements to the specification in terms of its suitability for
- use in booting snapshot images.
+ With the exception of the name space change (which although seemingly reasonabl
+e does not fully address the collision problem), and support for image paths
+ outside of 
+\family typewriter
+\series bold
+$BOOT
+\family default
+\series default
+, these are all improvements to the specification in terms of its suitability
+ for use in booting snapshot images.
 \end_layout
 
 \begin_layout Subsubsection
