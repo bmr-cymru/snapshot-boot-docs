@@ -2271,8 +2271,8 @@ key "systemd-boot"
 EFI System Partition
 \emph default
  (ESP).
- Among other targets it is commonly used to boot Linux operating systems
- on the 
+ Among other Linux targets it is commonly used to boot distributions on
+ the 
 \noun on
 Raspberry Pi 3
 \noun default
