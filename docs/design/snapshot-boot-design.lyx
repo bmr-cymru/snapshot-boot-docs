@@ -2712,8 +2712,8 @@ We propose two minor extensions to the BootLoader Specification that will
 \end_layout
 
 \begin_layout Enumerate
-Addition of a simple, free text tagging mechanism to support grouping, filtering
- and sorting of entries.
+Addition of a simple, free text tagging mechanism to support optional grouping,
+ filtering and sorting of entries.
 \end_layout
 
 \begin_layout Enumerate
