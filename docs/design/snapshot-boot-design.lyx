@@ -1286,7 +1286,7 @@ Ubuntu
 \noun default
  16.04) and 
 \noun on
-OpenSuSE
+OpenSUSE
 \noun default
  (the rolling 
 \noun on
@@ -1294,7 +1294,7 @@ Tumbleweed
 \noun default
  release and 
 \noun on
-OpenSuSE Leap
+OpenSUSE Leap
 \noun default
  42.2) both use the grub2 boot loader by default (although do not support
  the 
@@ -1344,7 +1344,7 @@ Ubuntu
 \noun default
  (16.04) and 
 \noun on
-OpenSuSE
+OpenSUSE
 \noun default
  (
 \noun on
@@ -1649,7 +1649,7 @@ grubby
 \family default
  package, and 
 \noun on
-SuSE
+SUSE
 \noun default
 's 
 \family typewriter
@@ -1830,7 +1830,7 @@ perl-Bootloader
 \begin_layout Standard
 The 
 \noun on
-SuSE
+SUSE
 \noun default
  
 \family typewriter
@@ -3141,7 +3141,7 @@ ZFS
 \family default
 , 
 \noun on
-SuSE
+SUSE
 \noun default
 's 
 \noun on
@@ -3189,7 +3189,7 @@ key "snapper"
 
 tool from 
 \noun on
-SuSE
+SUSE
 \noun default
  includes both a command-line interface and a graphical application for
  creating, viewing and managing snapshots.
