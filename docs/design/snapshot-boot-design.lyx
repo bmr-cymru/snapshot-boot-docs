@@ -4166,7 +4166,7 @@ File system substitution
 \end_layout
 
 \begin_layout Standard
-The file system subsitution component is primarily expected to be configured
+The file system subsitution tool is primarily expected to be configured
  by other software components: the Snapshot Manager and Boot Manager, as
  well as third party components that have a similar need to define modifications
  to the VFS configuration at boot time.
