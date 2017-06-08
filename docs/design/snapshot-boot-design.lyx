@@ -4002,7 +4002,7 @@ Once the system has booted, Tom logs in and begins the update process.
 \end_layout
 
 \begin_layout Enumerate
-With the update completed Tom begins to check the system to ensure all his
+With the update complete, Tom begins to check the system to ensure all his
  regular applications are working correctly.
  He then reboots the system to test the newly updated kernel package, and
  waits for the boot to complete.
