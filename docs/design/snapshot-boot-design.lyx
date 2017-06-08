@@ -3757,13 +3757,16 @@ Point-in-time backups
 \end_layout
 
 \begin_layout Standard
-Deborah's manager tells her that the most recent scheduled backup for an
- important volume has failed.
- Data has not been backed up for 24 hours and the manager is concerned that
- an outage could result in significant data loss and instructs her to create
- a backup as soon as possible.
- Since the volume is currently in use, Deborah wants to take the backup
- with the least disruption possible.
+Derek tells Deborah that the most recent scheduled backup for an important
+ volume has failed.
+ Data has not been backed up for 24 hours and Derek is concerned that an
+ outage could result in significant data loss.
+ He asks Deborah to create a backup as soon as possible.
+\end_layout
+
+\begin_layout Standard
+Since the volume is currently in use, Deborah wants to take the backup with
+ the least disruption possible.
  She decides to use a snapshot to create a consistent on-disk image for
  backup, without interfering with the live volume (Use case 
 \begin_inset CommandInset ref
