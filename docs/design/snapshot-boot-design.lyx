@@ -4058,7 +4058,7 @@ reference "enu:Booting-into-reboot-apply"
 
 \end_inset
 
-and 
+ and 
 \begin_inset CommandInset ref
 LatexCommand vref
 reference "enu:Boot-To-test-updates"
