@@ -1057,7 +1057,7 @@ Goal: Automatic rollback in the event of a failed boot
 \begin_layout Standard
 If an attempt to boot into a snapshot configuration fails, it is desirable
  for the system to automatically boot into the prior configuration (or to
- some recorded earlier 
+ some earlier 
 \begin_inset Quotes eld
 \end_inset
 
@@ -1075,15 +1075,16 @@ known good
 \begin_layout Standard
 Since these events fall outside the normal execution of the operating system
  (they involve only the failed attempt to boot, the firmware and bootloader)
- this feature is entirely dependent on the boot loader in use providing
- a mechanism to configure this fall back mechanism.
+ this goal is entirely dependent on the boot loader in use providing a means
+ to configure this fall back mechanism.
 \end_layout
 
 \begin_layout Standard
 Providing the ability to automatically recover a failed boot increases the
- usefulness of the feature in environments where recovery is otherwise awkward:
- headless systems, and systems with firmware that does not fully initialise
- the input subsystem before passing control to the bootloader
+ ease-of-use of the snapshot boot facility, especially in environments where
+ recovery is otherwise awkward: headless systems, restricted bootloaders,
+ and systems with firmware that does not fully initialise the input subsystem
+ before passing control to the bootloader
 \end_layout
 
 \begin_layout Section
