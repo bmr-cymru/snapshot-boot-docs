@@ -2090,45 +2090,6 @@ key "rufus"
 \end_layout
 
 \begin_layout Standard
-An implementation of a subset of the published BootLoader Specification
- is present in the 
-\family typewriter
-grub2
-\family default
- packages shipped in recent
-\noun on
- Red
-\begin_inset space ~
-\end_inset
-
-Hat
-\begin_inset space ~
-\end_inset
-
-Enterprise
-\begin_inset space ~
-\end_inset
-
-Linux
-\noun default
- and 
-\noun on
-Fedora
-\noun default
- releases.
- The implementation does not extend to the full set of restrictions on the
- 
-\family typewriter
-\series bold
-$BOOT
-\family default
-\series default
- volume as described in the standard (which would need support from the
- installer and other components), but does provide a usable mechanism that
- may be harnessed to create additional boot entries on these systems.
-\end_layout
-
-\begin_layout Standard
 Although the specification was written some years ago, and is implemented
  in several 
 \noun on
@@ -2207,6 +2168,100 @@ key "imgbased"
 \end_inset
 
  currently generates BLS boot entries for managed snapshot volumes.
+\end_layout
+
+\begin_layout Subsubsection
+BLS Implementations
+\end_layout
+
+\begin_layout Standard
+Two implementations of the BootLoader Specification are currently known:
+ the 
+\noun on
+systemd-boot
+\noun default
+ project (formerly 
+\emph on
+gummiboot
+\emph default
+), and the 
+\noun on
+Grub2
+\noun default
+ packages shipped in 
+\noun on
+Red Hat
+\noun default
+ distributions.
+\end_layout
+
+\begin_layout Paragraph
+systemd-boot
+\end_layout
+
+\begin_layout Standard
+The systemd-boot
+\begin_inset CommandInset citation
+LatexCommand cite
+key "systemd-boot"
+
+\end_inset
+
+ project is the reference implementation of the BootLoader Specification.
+ It is a native EFI application that operates entirely on the 
+\emph on
+EFI System Partition
+\emph default
+ (ESP).
+ Among other targets it is commonly used to boot Linux operating systems
+ on the 
+\noun on
+Raspberry Pi 3
+\noun default
+ and similar EFI-only machines.
+\end_layout
+
+\begin_layout Paragraph
+Red Hat Grub2
+\end_layout
+
+\begin_layout Standard
+An implementation of a subset of the published BootLoader Specification
+ is present in the 
+\family typewriter
+grub2
+\family default
+ packages shipped in recent
+\noun on
+ Red
+\begin_inset space ~
+\end_inset
+
+Hat
+\begin_inset space ~
+\end_inset
+
+Enterprise
+\begin_inset space ~
+\end_inset
+
+Linux
+\noun default
+ and 
+\noun on
+Fedora
+\noun default
+ releases.
+ The implementation does not extend to the full set of restrictions on the
+ 
+\family typewriter
+\series bold
+$BOOT
+\family default
+\series default
+ volume as described in the standard (which would need support from the
+ installer and other components), but does provide a usable mechanism that
+ may be harnessed to create additional boot entries on these systems.
 \end_layout
 
 \begin_layout Subsubsection
@@ -5849,6 +5904,31 @@ status collapsed
 \begin_layout Plain Layout
 
 https://github.com/fabiand/imgbased
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Bibliography
+\begin_inset CommandInset bibitem
+LatexCommand bibitem
+key "systemd-boot"
+
+\end_inset
+
+systemd-boot
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset Flex URL
+status collapsed
+
+\begin_layout Plain Layout
+
+https://www.freedesktop.org/wiki/Software/systemd/systemd-boot/
 \end_layout
 
 \end_inset
