@@ -1549,18 +1549,10 @@ Options for ignore-keystroke command:
 \begin_layout Standard
 While it is technically possible to envisage using these primitives to implement
  a snapshot selection mechanism during early user space, the available primitive
-s are limited and would make construction of menus having numerous entries
- awkward and clumsy, and enforces a question-response type of interaction
- (without the ability to, for example, scroll through the available entries).
-\end_layout
-
-\begin_layout Standard
-Discussions with the original authors of Plymouth indicate that there is
- no interest in extending the interaction capabilities of the tool at this
- time: avoiding complexities such as internationalisation and font configuration
- during this phase of boot form part of the design goals of Plymouth and
- there is a level of resistance towards enhancing this mechanism to support
- more complex interaction.
+s are intentionally limited and would make construction of menus having
+ numerous entries awkward and clumsy, and enforces a question-response type
+ of interaction (without the ability to, for example, scroll through the
+ available entries).
 \end_layout
 
 \begin_layout Subsection
