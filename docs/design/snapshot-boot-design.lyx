@@ -4118,9 +4118,9 @@ Red Hat Enterprise Linux
  in a variety of standardised configurations.
  Each configuration represents a particular customisation of the operating
  system using the provided administrative tools.
- To save time on each configuration, Derek suggests that Clive manually
- installs a base system and then creates read-write snapshots for each separate
- configuration to be tested (Use case 
+ To save time on each configuration, Tom suggests that Clive manually installs
+ a base system and then creates read-write snapshots for each separate configura
+tion to be tested (Use case 
 \begin_inset CommandInset ref
 LatexCommand ref
 reference "enu:Preparation-of-standardised"
