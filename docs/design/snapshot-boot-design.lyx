@@ -1881,8 +1881,12 @@ lilo, elilo, grub1, grub2, grub2efi
 
 \begin_layout Standard
 The upstream project has removed support for all bootloaders with the exception
- of grub2: other formats have been deprecated and removed, and are only
- supported in downstream legacy distributions.
+ of 
+\family typewriter
+grub2
+\family default
+: other formats have been deprecated and removed, and are only supported
+ in legacy downstream distributions.
 \end_layout
 
 \begin_layout Standard
