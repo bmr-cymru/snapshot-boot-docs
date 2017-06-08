@@ -1029,6 +1029,42 @@ Providing automated mechanisms to allow these operations avoids the need
 n and mount operations.
 \end_layout
 
+\begin_layout Subsubsection
+Goal: Automatic rollback in the event of a failed boot
+\end_layout
+
+\begin_layout Standard
+If an attempt to boot into a snapshot configuration fails, it is desirable
+ for the system to automatically boot into the prior configuration (or to
+ some recorded earlier 
+\begin_inset Quotes eld
+\end_inset
+
+
+\emph on
+known good
+\emph default
+
+\begin_inset Quotes erd
+\end_inset
+
+ state).
+\end_layout
+
+\begin_layout Standard
+Since these events fall outside the normal execution of the operating system
+ (they involve only the failed attempt to boot, the firmware and bootloader)
+ this feature is entirely dependent on the boot loader in use providing
+ a mechanism to configure this fall back mechanism.
+\end_layout
+
+\begin_layout Standard
+Providing the ability to automatically recover a failed boot increases the
+ usefulness of the feature in environments where recovery is otherwise awkward:
+ headless systems, and systems with firmware that does not fully initialise
+ the input subsystem before passing control to the bootloader
+\end_layout
+
 \begin_layout Section
 Linux boot process management
 \end_layout
