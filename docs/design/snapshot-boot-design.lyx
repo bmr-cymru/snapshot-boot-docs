@@ -4111,8 +4111,11 @@ Creating stable testing images
 \end_layout
 
 \begin_layout Standard
-Clive needs to test an update to Red Hat Enterprise Linux in a variety of
- standardised configurations.
+Clive needs to test an update to 
+\noun on
+Red Hat Enterprise Linux
+\noun default
+ in a variety of standardised configurations.
  Each configuration represents a particular customisation of the operating
  system using the provided administrative tools.
  To save time on each configuration, Derek suggests that Clive manually
