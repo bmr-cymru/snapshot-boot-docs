@@ -794,6 +794,27 @@ default subvolume
  setting, forcing the specified subvolume to be mounted instead.
 \end_layout
 
+\begin_layout Standard
+One important consideration in booting snapshots of BTRFS volumes is that,
+ by default, these snapshots are created 
+\emph on
+read-only
+\emph default
+.
+ A snapshot subvolume may be made writable using the 
+\family typewriter
+btrfs-property
+\begin_inset CommandInset citation
+LatexCommand cite
+key "btrfs-property"
+
+\end_inset
+
+
+\family default
+ command, or a new writable subvolume may be created from the snapshot.
+\end_layout
+
 \begin_layout Subsection
 Core Goals
 \end_layout
@@ -4385,16 +4406,32 @@ Snapshots are expired when they reach a threshold age specified by the user.
 
 \end_deeper
 \begin_layout Itemize
-Preservation tags
+Preservation tags and priority
 \end_layout
 
 \begin_deeper
 \begin_layout Itemize
-Tags are applied to snapshots to indicate that they are to be preserved.
- The presence of a preservation flag exempts a snapshot from any other expiry
+Tags are applied to snapshots to indicate that they are to be preserved,
+ or to declare properties allowing prioritisation.
+\end_layout
+
+\begin_layout Itemize
+The presence of a preservation flag exempts a snapshot from any other expiry
  policy.
 \end_layout
 
+\begin_layout Itemize
+The presence of priority flags may be used to select among possible candidates
+ for deletion.
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+For example, a system update may take precedence over a small, regularly
+ scheduled snapshot.
+\end_layout
+
+\end_deeper
 \end_deeper
 \begin_layout Itemize
 Snapshot space usage
@@ -5475,6 +5512,31 @@ status collapsed
 \begin_layout Plain Layout
 
 https://github.com/dracutdevs/dracut/pull/223
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Bibliography
+\begin_inset CommandInset bibitem
+LatexCommand bibitem
+key "btrfs-property"
+
+\end_inset
+
+btrfs-property
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset Flex URL
+status collapsed
+
+\begin_layout Plain Layout
+
+https://btrfs.wiki.kernel.org/index.php/Manpage/btrfs-property
 \end_layout
 
 \end_inset
