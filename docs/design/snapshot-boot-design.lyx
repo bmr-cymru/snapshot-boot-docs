@@ -848,13 +848,13 @@ Goal: Enable easy selection of bootable snapshots
 Although it is possible to boot a Linux system into various snapshot configurati
 ons, few administrators are aware of, or make use of this functionality
  since it is poorly documented and relies on a detailed knowledge of kernel
- command line parameters, system device, and VFS configuration.
+ command line parameters, system devices, and VFS configuration.
 \end_layout
 
 \begin_layout Standard
 With appropriate tools these powerful features would be accessible to a
  much wider audience of system administrators, users and developers, as
- well as to teams developing projects using Linux as a base operating system.
+ well as to groups developing projects using Linux as a base operating system.
 \end_layout
 
 \begin_layout Subsubsection
