@@ -3853,7 +3853,7 @@ He reports this to the application team who investigate and provide a fix.
 \end_layout
 
 \begin_layout Subsubsection
-Before-and-after snapshots (I)
+Before-and-after snapshots
 \end_layout
 
 \begin_layout Standard
@@ -3951,8 +3951,14 @@ Rather than take a snapshot of the system state to keep, as Deborah did,
 \emph on
 merging
 \emph default
- the snapshot back into the origin volume), or, if there are problems, to
- reject it and delete the snapshot volume.
+ the snapshot back into the origin volume: use case 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "enu:Creation-of-temporary"
+
+\end_inset
+
+), or, if there are problems, to reject it and delete the snapshot volume.
 \end_layout
 
 \begin_layout Enumerate
@@ -4014,7 +4020,7 @@ reference "enu:Creation-of-temporary"
 
  and boot use cases 
 \begin_inset CommandInset ref
-LatexCommand vref
+LatexCommand ref
 reference "enu:Booting-into-reboot-apply"
 
 \end_inset
@@ -4078,7 +4084,14 @@ Clive needs to test an update to Red Hat Enterprise Linux in a variety of
  system using the provided administrative tools.
  To save time on each configuration, Derek suggests that Clive manually
  installs a base system and then creates read-write snapshots for each separate
- configuration to be tested.
+ configuration to be tested (Use case 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "enu:Preparation-of-standardised"
+
+\end_inset
+
+).
  The tests can then be run automatically against the snapshots with changes
  made as required.
 \end_layout
@@ -4116,8 +4129,316 @@ Once the images have been created, Clive creates a new snapshot of each
 File system substitution
 \end_layout
 
+\begin_layout Standard
+The file system subsitution component is primarily expected to be configured
+ by other software components: the Snapshot Manager and Boot Manager, as
+ well as third party components that have a similar need to define modifications
+ to the VFS configuration at boot time.
+\end_layout
+
+\begin_layout Standard
+These, and additional manual use-cases will be further defined at a later
+ time.
+\end_layout
+
 \begin_layout Subsection
 Boot Manager
+\end_layout
+
+\begin_layout Subsubsection
+Creating a boot entry for an existing snapshot of the root file system (LVM2)
+\end_layout
+
+\begin_layout Standard
+Derek carried out a major system upgrade a few weeks ago, using his distribution
+'s bootable media.
+ He later discovers that an application he previously used is no longer
+ present, and the configuration files are not in 
+\begin_inset Quotes eld
+\end_inset
+
+
+\family typewriter
+/etc
+\family default
+
+\begin_inset Quotes erd
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+Prior to upgrading the system, Derek had created a snapshot of the root
+ file system and had kept the volume group, and snapshot logical volume,
+ when carrying out the update.
+\end_layout
+
+\begin_layout Standard
+He decides to create a boot entry for the snapshot to allow him to go back
+ and inspect the application and its configuration so that he can install
+ it on the updated system (use case 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "enu:Booting-into-inspect"
+
+\end_inset
+
+and requirement 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "subsec:Ability-to-create-BLS"
+
+\end_inset
+
+).
+\end_layout
+
+\begin_layout Standard
+Using a bootable configuration will allow him to test the application directly
+ without needing to take any special steps to mount the snapshot, and make
+ it usable, on his current system.
+\end_layout
+
+\begin_layout Enumerate
+Derek identifies the snapshot logical volume by name.
+\end_layout
+
+\begin_layout Enumerate
+He uses the Boot Manager to create a new 
+\emph on
+boot entry
+\emph default
+ by specifiying the 
+\emph on
+root logical volume
+\emph default
+ and a 
+\emph on
+label.
+\end_layout
+
+\begin_layout Enumerate
+The Boot Manager identifies the kernel versions present in the snapshot
+ and verifies that they exist in 
+\begin_inset Quotes eld
+\end_inset
+
+
+\family typewriter
+/boot
+\family default
+
+\begin_inset Quotes erd
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Enumerate
+The Boot Manager generates the required 
+\emph on
+boot entry
+\emph default
+ keys via templates and writes a BLS configuration snippet.
+\end_layout
+
+\begin_layout Enumerate
+Derek reboots the system and selects the newly-created 
+\emph on
+boot entry
+\emph default
+ from the menu.
+\end_layout
+
+\begin_layout Enumerate
+The system boots into the snapshot allowing Derek to inspect the system
+ and recover the application configuration.
+\end_layout
+
+\begin_layout Subsubsection
+Finding information on an existing entry
+\end_layout
+
+\begin_layout Standard
+Derek would like to confirm the settings used for the snapshot 
+\emph on
+boot entry
+\emph default
+ that he has created.
+ He decides to use the Boot Manager to list the available boot entries,
+ including the entry that he has just created (requirement 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "subsec:Ability-list-BLS"
+
+\end_inset
+
+).
+\end_layout
+
+\begin_layout Enumerate
+He opens a terminal and runs the Boot Manager to list the entries.
+\end_layout
+
+\begin_layout Enumerate
+The Boot Manager accesses the BLS configuration path and collects the available
+ entries for display.
+\end_layout
+
+\begin_layout Enumerate
+The Boot Manager formats the results according to a default configuration,
+ or options given on the command line.
+\end_layout
+
+\begin_layout Enumerate
+Results are printed to the terminal in a human readable column formatted
+ report.
+\end_layout
+
+\begin_layout Subsubsection
+Checking the currently selected defaults
+\end_layout
+
+\begin_layout Standard
+Before rebooting, Derek would like to check the default boot entry on his
+ system (requirement 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "subsec:Ability-display-modify-default"
+
+\end_inset
+
+).
+\end_layout
+
+\begin_layout Enumerate
+Derek opens a terminal and runs the Boot Manager to print the current default
+ boot entry.
+\end_layout
+
+\begin_layout Enumerate
+The Boot Manager interacts with the system bootloader to determine the default
+ entry.
+\end_layout
+
+\begin_layout Enumerate
+The Boot Manager formats the result and prints it to the terminal.
+\end_layout
+
+\begin_layout Subsubsection
+Overriding the selected entry for subsequent boots
+\end_layout
+
+\begin_layout Standard
+Derek has to take a call while he is working on the recovery procedure.
+ To avoid the need to pay attention to the system boot process, and to select
+ the correct entry at the appropriate point, he decides to temporarily set
+ the default boot entry to the snapshot entry he has created (requirement
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "subsec:Ability-display-modify-default"
+
+\end_inset
+
+).
+\end_layout
+
+\begin_layout Enumerate
+Derek opens a terminal window and runs the Boot Manager to check the current
+ default.
+\end_layout
+
+\begin_layout Enumerate
+He runs the Boot Manager a second time, this time to set the default entry
+ to the label of the newly-created snapshot configuration.
+\end_layout
+
+\begin_layout Enumerate
+The Boot Manager passes the new default to the system bootloader and confirms
+ that it has been set.
+\end_layout
+
+\begin_layout Enumerate
+Derek re-runs the Boot Manager to display the default, to double-check the
+ setting.
+\end_layout
+
+\begin_layout Subsubsection
+Manually removing an existing boot entry
+\end_layout
+
+\begin_layout Standard
+Derek has finished inspecting his previous installation and has successfully
+ re-created the configuration on his new system.
+ He decides to remove the boot entry for the snapshot, although he will
+ keep the snapshot itself in case he needs to refer to it again (requirement
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "subsec:Ability-to-remove-BLS"
+
+\end_inset
+
+).
+\end_layout
+
+\begin_layout Enumerate
+Derek checks the logical volume name for the configuration he created earlier
+ and uses the Boot Manager to verify that it is the correct entry, by checking
+ the label that was used to create it.
+\end_layout
+
+\begin_layout Enumerate
+Derek uses the Boot Manager to remove the configuration by specifying its
+ label.
+\end_layout
+
+\begin_layout Enumerate
+The Boot Manager verifies that the entry exists and, since Derek specified
+ the label to be removed, deletes it without confirmation.
+\end_layout
+
+\begin_layout Subsubsection
+Removing all boot entries corresponding to a specified kernel version
+\end_layout
+
+\begin_layout Standard
+Tom is applying updates to a server his group uses.
+ The team has decided to adopt a new baseline kernel version supplied by
+ the operating system vendor and Tom must remove the old kernel and its
+ configuration from the system (requiement 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "subsec:Ability-to-remove-BLS"
+
+\end_inset
+
+).
+ Tom knows that a number of snapshot boot entries have been created that
+ correspond to this version and he wishes to remove them all.
+\end_layout
+
+\begin_layout Enumerate
+Tom identifies the kernel version that he wishes to remove.
+\end_layout
+
+\begin_layout Enumerate
+Tom uses the Boot Manager to delete boot entries matching this kernel version.
+\end_layout
+
+\begin_layout Enumerate
+Since multiple boot entries matching this specification exist the tool requests
+ confirmation.
+\end_layout
+
+\begin_layout Enumerate
+Tom confirms that the Boot Manager should remove these entries.
+\end_layout
+
+\begin_layout Enumerate
+The entries are deleted from the BLS configuration path.
 \end_layout
 
 \begin_layout Section
@@ -4143,6 +4464,12 @@ The tool is envisaged as a command line interface and library bindings to
 \end_layout
 
 \begin_layout Subsubsection
+\begin_inset CommandInset label
+LatexCommand label
+name "subsec:Ability-to-create-BLS"
+
+\end_inset
+
 Ability to create BLS compliant boot loader entries
 \end_layout
 
@@ -4170,6 +4497,12 @@ device-tree
 \end_layout
 
 \begin_layout Subsubsection
+\begin_inset CommandInset label
+LatexCommand label
+name "subsec:Ability-to-remove-BLS"
+
+\end_inset
+
 Ability to remove BLS boot loader entries
 \end_layout
 
@@ -4200,6 +4533,12 @@ Where the given criteria correspond to more than one entry the tool will
 \end_layout
 
 \begin_layout Subsubsection
+\begin_inset CommandInset label
+LatexCommand label
+name "subsec:Ability-list-BLS"
+
+\end_inset
+
 Ability to list the available BLS boot loader entries and their properties
 \end_layout
 
@@ -4212,6 +4551,12 @@ It must be possible to display all available BLS entries on the system,
 \end_layout
 
 \begin_layout Subsubsection
+\begin_inset CommandInset label
+LatexCommand label
+name "subsec:Ability-display-modify-default"
+
+\end_inset
+
 Ability to display and modify the selected default boot entry
 \end_layout
 
