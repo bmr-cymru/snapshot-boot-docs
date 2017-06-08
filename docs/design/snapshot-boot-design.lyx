@@ -1397,7 +1397,11 @@ In addition to the progress indication and logging services provided by
 \end_layout
 
 \begin_layout Standard
-The interaction verbs supported by current versions (0.8.9) of plymouth are
+The interaction verbs supported by current versions (
+\family typewriter
+0.8.9
+\family default
+) of plymouth are
 \begin_inset CommandInset citation
 LatexCommand cite
 key "plymouth8"
