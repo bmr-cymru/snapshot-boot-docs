@@ -4043,7 +4043,7 @@ Fedora
 \noun default
  system.
  The update manager suggests rebooting to apply updates.
- Tom decides that he will use a snapshot to test the update before applying
+ Derek decides that he will use a snapshot to test the update before applying
  it to his system's root file system (Use case 
 \begin_inset CommandInset ref
 LatexCommand vref
