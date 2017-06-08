@@ -4015,12 +4015,21 @@ Once the system has booted Tom logs back in and completes his verification
 
 \begin_layout Enumerate
 On finding everything working as expected Tom instructs the Snapshot Manager
- to begin merging the snapshot into the main root file system.
+ to begin merging the snapshot into the main root file system and reboots
+ the system.
 \end_layout
 
 \begin_layout Enumerate
-Once the merge operation has completed Tom reboots and selects the entry
- to boot into the main root file system.
+Tom selects the entry for the system the snapshot was created from in the
+ boot menu.
+\end_layout
+
+\begin_layout Enumerate
+During activation the system starts the snapshot merge process.
+\end_layout
+
+\begin_layout Enumerate
+Tom continues working on the updated system.
 \end_layout
 
 \begin_layout Subsubsection
