@@ -2739,7 +2739,7 @@ reference "subsec:Goal:-Simplify-management"
 These changes have not been formally proposed at this time.
  It is not clear whether the best route to having these changes included
  is to amend the published BootLoader Specification, or to first attempt
- to implement these features in the 
+ to propose these features for the 
 \noun on
 Fedora
 \noun default
@@ -2747,7 +2747,11 @@ Fedora
 \family typewriter
 grub2
 \family default
- package.
+ package and upstream 
+\family typewriter
+systemd-boot
+\family default
+.
 \end_layout
 
 \begin_layout Subsection
