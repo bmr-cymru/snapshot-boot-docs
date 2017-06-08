@@ -3790,7 +3790,7 @@ He reports this to the application team who investigate and provide a fix.
 \end_layout
 
 \begin_layout Subsubsection
-Before-and-after snapshots
+Before-and-after snapshots (I)
 \end_layout
 
 \begin_layout Standard
@@ -3872,7 +3872,66 @@ Deborah keeps both of the remaining snapshots for future reference.
 \end_layout
 
 \begin_layout Subsubsection
-Testing updates
+Testing updates (success)
+\end_layout
+
+\begin_layout Standard
+Tom has been talking to Deborah about her recent update, and would like
+ to update his Red hat Enterprise Linux workstation too as new software
+ updates are available.
+\end_layout
+
+\begin_layout Standard
+Rather than take a snapshot of the system state to keep, as Deborah did,
+ Tom decides to take a snapshot first, and apply the updates to the snapshot,
+ before reviewing and either acccepting the update (by 
+\emph on
+merging
+\emph default
+ the snapshot back into the origin volume), or, if there are problems, to
+ reject it and delete the snapshot volume.
+\end_layout
+
+\begin_layout Enumerate
+Tom takes a snapshot of the logical volume containing his root file system
+ and creates a boot entry for it using the Snapshot Manager.
+\end_layout
+
+\begin_deeper
+\begin_layout Enumerate
+Tom reboots the system and selects the newly created snapshot entry in the
+ boot loader menu.
+\end_layout
+
+\end_deeper
+\begin_layout Enumerate
+Once the system has booted, Tom logs in and begins the update process.
+\end_layout
+
+\begin_layout Enumerate
+With the update completed Tom begins to check the system to ensure all his
+ regular applications are working correctly.
+ He then reboots the system to test the newly updated kernel package, and
+ waits for the boot to complete.
+\end_layout
+
+\begin_layout Enumerate
+Once the system has booted Tom logs back in and completes his verification
+ of the system.
+\end_layout
+
+\begin_layout Enumerate
+On finding everything working as expected Tom instructs the Snapshot Manager
+ to begin merging the snapshot into the main root file system.
+\end_layout
+
+\begin_layout Enumerate
+Once the merge operation has completed Tom reboots and selects the entry
+ to boot into the main root file system.
+\end_layout
+
+\begin_layout Subsubsection
+Testing updates (failure)
 \end_layout
 
 \begin_layout Standard
