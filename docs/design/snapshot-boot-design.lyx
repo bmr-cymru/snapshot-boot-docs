@@ -2043,8 +2043,7 @@ ts of the specification.
 \family typewriter
 BIOS
 \family default
- vs.
- 
+ or 
 \family typewriter
 EFI
 \family default
@@ -2052,8 +2051,7 @@ EFI
 \family typewriter
 MBR
 \family default
- vs.
- 
+ or 
 \family typewriter
 GPT
 \family default
@@ -2111,8 +2109,7 @@ $BOOT
 VFAT
 \family default
  16 or 32 file system.
- This requirement appears to be an attempt to harmonise with aspects of
- the (
+ This requirement attempts to harmonise with aspects of the (
 \family typewriter
 U
 \family default
@@ -2120,13 +2117,11 @@ U
 \family typewriter
 EFI
 \family default
- specification, particularly the requirements of the 
+ specification and the requirements of the 
 \family typewriter
 ESP
 \family default
 .
- At this time there are no known implementations of BLS that enforce this
- requirement.
 \end_layout
 
 \begin_layout Standard
@@ -2141,8 +2136,8 @@ $BOOT
 0xEA
 \family default
  on systems using the MBR partition scheme.
- This is problematic since this value is not reserved for this use and is
- currently in use by at least one other partitioning tool
+ This may be problematic since this value is not reserved for this use and
+ is currently in use by at least one other partitioning tool
 \begin_inset CommandInset citation
 LatexCommand cite
 key "rufus"
@@ -2150,12 +2145,15 @@ key "rufus"
 \end_inset
 
  for a conflicting purpose.
- Again: no known implementation of BLS enforces this requirement.
 \end_layout
 
 \begin_layout Standard
 Although the specification was written some years ago, and is implemented
- in several 
+ in 
+\family typewriter
+systemd-boot
+\family default
+ and several 
 \noun on
 Red
 \begin_inset space ~
@@ -2164,14 +2162,10 @@ Red
 Hat
 \noun default
  distributions, development appears to have stalled.
- Private conversations with one of the contributors to the specification
- indicate that although there was general agreement over the direction the
- standard should take that insufficient motivation existed at the time to
- further its development and adoption.
 \end_layout
 
 \begin_layout Standard
-The standard is appealing for the current work in part because it directly
+The specification is appealing for the current work in part because it directly
  aims to solve the problem of a shared, system-wide 
 \begin_inset Quotes eld
 \end_inset
