@@ -4146,7 +4146,7 @@ Boot Manager
 \end_layout
 
 \begin_layout Subsubsection
-Creating a boot entry for an existing snapshot of the root file system (LVM2)
+Creating a boot entry for an existing snapshot (LVM2)
 \end_layout
 
 \begin_layout Standard
