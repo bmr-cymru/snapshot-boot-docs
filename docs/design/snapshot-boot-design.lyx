@@ -4208,10 +4208,7 @@ Derek carried out a major system upgrade a few weeks ago, using his distribution
 Prior to upgrading the system, Derek had created a snapshot of the root
  file system and had kept the volume group, and snapshot logical volume,
  when carrying out the update.
-\end_layout
-
-\begin_layout Standard
-He decides to create a boot entry for the snapshot to allow him to go back
+ He decides to create a boot entry for the snapshot to allow him to go back
  and inspect the application and its configuration so that he can install
  it on the updated system (use case 
 \begin_inset CommandInset ref
@@ -4233,7 +4230,14 @@ reference "subsec:Ability-to-create-BLS"
 \begin_layout Standard
 Using a bootable configuration will allow him to test the application directly
  without needing to take any special steps to mount the snapshot, and make
- it usable, on his current system.
+ it usable, on his current system (see 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "subsec:Proposal:file-ops-1"
+
+\end_inset
+
+).
 \end_layout
 
 \begin_layout Enumerate
